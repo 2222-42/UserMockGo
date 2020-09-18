@@ -2,7 +2,9 @@ package handler
 
 import (
 	"UserMockGo/domain/service"
+	"fmt"
 	"github.com/labstack/echo"
+	"net/http"
 )
 
 type UserHandler struct {
@@ -15,10 +17,23 @@ func NewUserHandler(userService service.UserService) UserHandler {
 	}
 }
 
-func (handler UserHandler) Create(c echo.Context) error {
-	email := c.QueryParam("email")
-	password := c.QueryParam("password")
-	passwordConfirmation := c.QueryParam("password_confirmation")
+type UserParam struct {
+	Email                string `json:"email"`
+	Password             string `json:"password"`
+	PasswordConfirmation string `json:"password_confirmation"`
+}
 
-	return handler.userService.CreateUser(email, password, passwordConfirmation)
+func (handler UserHandler) Create(c echo.Context) error {
+	fmt.Println("called")
+	body := new(UserParam)
+	if err := c.Bind(body); err != nil {
+		fmt.Println("Request is failed: " + err.Error())
+		return err
+	}
+	fmt.Printf("(%%+v) %+v\n", body)
+
+	if err := handler.userService.CreateUser(body.Email, body.Password, body.PasswordConfirmation); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, body)
 }
