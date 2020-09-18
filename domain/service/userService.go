@@ -10,12 +10,14 @@ import (
 type UserService struct {
 	userRepository infrainterface.IUserRepository
 	idGenerator    infrainterface.IUserIdGenerator
+	tokenGenerator infrainterface.IUserTokenGenerator
 }
 
-func NewUserService(userRepository infrainterface.IUserRepository, idGenerator infrainterface.IUserIdGenerator) UserService {
+func NewUserService(userRepository infrainterface.IUserRepository, idGenerator infrainterface.IUserIdGenerator, tokenGenerator infrainterface.IUserTokenGenerator) UserService {
 	return UserService{
 		userRepository: userRepository,
 		idGenerator:    idGenerator,
+		tokenGenerator: tokenGenerator,
 	}
 }
 
@@ -24,9 +26,10 @@ func (service UserService) CreateUser(email string, password string, passwordCon
 	id := service.idGenerator.Generate()
 	// TODO: timerを導入する
 	now := time.Now().Unix()
+	token, expiresAt := service.tokenGenerator.GenerateTokenAndExpiresAt()
 
-	user := user.NewUser(model.UserID(id), email, password, passwordConfirmation, now)
+	u := user.NewUser(model.UserID(id), email, password, passwordConfirmation, now, token, expiresAt)
 
 	// TODO: error handling
-	return service.userRepository.Save(user)
+	return service.userRepository.Save(u)
 }

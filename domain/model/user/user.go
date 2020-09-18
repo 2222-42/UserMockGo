@@ -15,15 +15,15 @@ type User struct {
 }
 
 // TODO: tokenの生成と有効期限の設定は外部に切り出す。
-func NewUser(id model.UserID, email string, password string, passwordConfirmation string, now int64) User {
+func NewUser(id model.UserID, email string, password string, passwordConfirmation string, now int64, token string, expiresAt int64) User {
 	return User{
 		ID:                       id,
 		Email:                    email,
 		Password:                 password,
 		PasswordConfirmation:     passwordConfirmation,
 		IsActive:                 false,
-		ActivationToken:          "",
-		ActivationTokenExpiresAt: now + 60*60,
+		ActivationToken:          token,
+		ActivationTokenExpiresAt: expiresAt,
 		CreatedAt:                now,
 		UpdatedAt:                now,
 	}
