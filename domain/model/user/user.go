@@ -2,11 +2,14 @@ package user
 
 import "UserMockGo/domain/model"
 
+type Email string
+type PassString string
+
 type User struct {
 	ID                       model.UserID
-	Email                    string // TODO: add type and make validation
-	Password                 string // TODO: add validation
-	PasswordConfirmation     string
+	Email                    Email      // TODO: add type and make validation
+	Password                 PassString // TODO: add validation
+	PasswordConfirmation     PassString
 	IsActive                 bool
 	ActivationToken          string
 	ActivationTokenExpiresAt int64
@@ -15,7 +18,7 @@ type User struct {
 }
 
 // TODO: tokenの生成と有効期限の設定は外部に切り出す。
-func NewUser(id model.UserID, email string, password string, passwordConfirmation string, now int64, token string, expiresAt int64) User {
+func NewUser(id model.UserID, email Email, password PassString, passwordConfirmation PassString, now int64, token string, expiresAt int64) User {
 	return User{
 		ID:                       id,
 		Email:                    email,

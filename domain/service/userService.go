@@ -22,7 +22,7 @@ func NewUserService(userRepository infrainterface.IUserRepository, idGenerator i
 }
 
 //Passwordはこの時点ではいらないかも？
-func (service UserService) CreateUser(email string, password string, passwordConfirmation string) error {
+func (service UserService) CreateUser(email user.Email, password user.PassString, passwordConfirmation user.PassString) error {
 	id := service.idGenerator.Generate()
 	// TODO: timerを導入する
 	now := time.Now().Unix()
