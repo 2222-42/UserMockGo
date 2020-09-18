@@ -19,7 +19,7 @@ func NewUserService(userRepository infrainterface.IUserRepository) UserService {
 }
 
 //Passwordはこの時点ではいらないかも？
-func (service UserService) CreateUser(email string, password string, passwordConfirmation string) error {
+func (service UserService) CreateUser(email user.Email, password string, passwordConfirmation string) error {
 	// TODO: idの生成
 	rand.Seed(time.Now().Unix())
 	id := rand.Int63n(10000)
