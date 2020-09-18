@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"UserMockGo/domain/model/user"
 	"UserMockGo/domain/service"
 	"fmt"
 	"github.com/labstack/echo"
@@ -32,7 +33,7 @@ func (handler UserHandler) Create(c echo.Context) error {
 	}
 	fmt.Printf("(%%+v) %+v\n", body)
 
-	if err := handler.userService.CreateUser(body.Email, body.Password, body.PasswordConfirmation); err != nil {
+	if err := handler.userService.CreateUser(user.Email(body.Email), user.PassString(body.Password), user.PassString(body.PasswordConfirmation)); err != nil {
 		return err
 	}
 	return c.JSON(http.StatusOK, body)
