@@ -6,28 +6,35 @@ type Email string
 type PassString string
 
 type User struct {
+	ID                   model.UserID
+	Email                Email // TODO: add type and make validation
+	PasswordConfirmation PassString
+	IsActive             bool
+	CreatedAt            int64
+	UpdatedAt            int64
+}
+
+type Activation struct {
 	ID                       model.UserID
-	Email                    Email      // TODO: add type and make validation
-	Password                 PassString // TODO: add validation
-	PasswordConfirmation     PassString
-	IsActive                 bool
 	ActivationToken          string
 	ActivationTokenExpiresAt int64
-	CreatedAt                int64
-	UpdatedAt                int64
 }
 
 // TODO: tokenの生成と有効期限の設定は外部に切り出す。
-func NewUser(id model.UserID, email Email, password PassString, passwordConfirmation PassString, now int64) User {
+func NewUser(id model.UserID, email Email, now int64) User {
 	return User{
+		ID:        id,
+		Email:     email,
+		IsActive:  false,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+}
+
+func NewActivation(id model.UserID, token string, expiresAt int64) Activation {
+	return Activation{
 		ID:                       id,
-		Email:                    email,
-		Password:                 password,
-		PasswordConfirmation:     passwordConfirmation,
-		IsActive:                 false,
-		ActivationToken:          "",
-		ActivationTokenExpiresAt: now + 60*60,
-		CreatedAt:                now,
-		UpdatedAt:                now,
+		ActivationToken:          token,
+		ActivationTokenExpiresAt: expiresAt,
 	}
 }
