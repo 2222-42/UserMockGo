@@ -18,6 +18,6 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
-	e.POST("/users/new", userHandler.Create)
+	e.POST("/users", userHandler.Create)
 	e.Logger.Fatal(e.Start(":8080"))
 }
