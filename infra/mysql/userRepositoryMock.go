@@ -15,23 +15,19 @@ func (repo UserRepositoryMock) CreateUser(user user.User, pass user.Password, ac
 func (repo UserRepositoryMock) FindByEmail(email user.Email) user.User {
 	if email == "test1@test.com" {
 		return user.User{
-			ID:                       1,
-			Email:                    "test1@test.com",
-			IsActive:                 false,
-			ActivationToken:          "a",
-			ActivationTokenExpiresAt: time.Now().Unix() + 60*30,
-			CreatedAt:                time.Now().Unix(),
-			UpdatedAt:                time.Now().Unix(),
+			ID:        1,
+			Email:     "test1@test.com",
+			IsActive:  false,
+			CreatedAt: time.Now().Unix(),
+			UpdatedAt: time.Now().Unix(),
 		}
 	} else if email == "test2@test.com" {
 		return user.User{
-			ID:                       2,
-			Email:                    "test1@test.com",
-			IsActive:                 false,
-			ActivationToken:          "b",
-			ActivationTokenExpiresAt: time.Now().Unix() - 60*10,
-			CreatedAt:                time.Now().Unix() - 60*30,
-			UpdatedAt:                time.Now().Unix() - 60*30,
+			ID:        2,
+			Email:     "test1@test.com",
+			IsActive:  false,
+			CreatedAt: time.Now().Unix() - 60*30,
+			UpdatedAt: time.Now().Unix() - 60*30,
 		}
 	}
 	return user.User{}
