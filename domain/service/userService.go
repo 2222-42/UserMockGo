@@ -2,6 +2,7 @@ package service
 
 import (
 	"UserMockGo/domain/infrainterface"
+	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/user"
 	"math/rand"
 	"time"
@@ -25,7 +26,7 @@ func (service UserService) CreateUser(email string, password string, passwordCon
 	// TODO: timerを導入する
 	now := time.Now().Unix()
 
-	user := user.NewUser(id, email, password, passwordConfirmation, now)
+	user := user.NewUser(model.UserID(id), email, password, passwordConfirmation, now)
 
 	// TODO: error handling
 	return service.userRepository.Save(user)
