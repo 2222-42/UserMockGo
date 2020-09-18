@@ -22,14 +22,17 @@ func NewUserService(userRepository infrainterface.IUserRepository, idGenerator i
 }
 
 //Passwordはこの時点ではいらないかも？
-func (service UserService) CreateUser(email user.Email, password user.PassString, passwordConfirmation user.PassString) error {
+func (service UserService) CreateUser(email user.Email, passString user.PassString) error {
 	id := service.idGenerator.Generate()
 	// TODO: timerを導入する
 	now := time.Now().Unix()
 	token, expiresAt := service.tokenGenerator.GenerateTokenAndExpiresAt()
+	userId := model.UserID(id)
 
-	u := user.NewUser(model.UserID(id), email, password, passwordConfirmation, now, token, expiresAt)
+	u := user.NewUser(userId, email, now)
+	p := user.NewPassword(userId, passString)
+	a := user.NewActivation(userId, token, expiresAt)
 
-	// TODO: error handling
-	return service.userRepository.Save(u)
+	// TODO: transactional commit
+	return service.userRepository.CreateUser(u, p, a)
 }

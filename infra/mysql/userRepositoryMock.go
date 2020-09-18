@@ -8,7 +8,7 @@ import (
 type UserRepositoryMock struct {
 }
 
-func (repo UserRepositoryMock) Save(user user.User) error {
+func (repo UserRepositoryMock) CreateUser(user user.User, pass user.Password, activation user.Activation) error {
 	return nil
 }
 
