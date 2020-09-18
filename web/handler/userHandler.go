@@ -31,9 +31,12 @@ func (handler UserHandler) Create(c echo.Context) error {
 		fmt.Println("Request is failed: " + err.Error())
 		return err
 	}
-	fmt.Printf("(%%+v) %+v\n", body)
 
-	if err := handler.userService.CreateUser(user.Email(body.Email), user.PassString(body.Password), user.PassString(body.PasswordConfirmation)); err != nil {
+	if body.Password != body.PasswordConfirmation {
+		return c.JSON(http.StatusBadRequest, "Password does not match PasswordConfirmation")
+	}
+
+	if err := handler.userService.CreateUser(user.Email(body.Email), user.PassString(body.Password)); err != nil {
 		return err
 	}
 	return c.JSON(http.StatusOK, body)
