@@ -4,25 +4,24 @@ import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/user"
-	"math/rand"
 	"time"
 )
 
 type UserService struct {
 	userRepository infrainterface.IUserRepository
+	idGenerator    infrainterface.IUserIdGenerator
 }
 
-func NewUserService(userRepository infrainterface.IUserRepository) UserService {
+func NewUserService(userRepository infrainterface.IUserRepository, idGenerator infrainterface.IUserIdGenerator) UserService {
 	return UserService{
 		userRepository: userRepository,
+		idGenerator:    idGenerator,
 	}
 }
 
 //Passwordはこの時点ではいらないかも？
 func (service UserService) CreateUser(email user.Email, password user.PassString, passwordConfirmation user.PassString) error {
-	// TODO: idの生成
-	rand.Seed(time.Now().Unix())
-	id := rand.Int63n(10000)
+	id := service.idGenerator.Generate()
 	// TODO: timerを導入する
 	now := time.Now().Unix()
 
