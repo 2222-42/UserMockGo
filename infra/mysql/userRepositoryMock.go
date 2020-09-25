@@ -17,6 +17,10 @@ func (repo UserRepositoryMock) CreateUserTransactional(user user.User, pass user
 	return nil
 }
 
+func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activation user.Activation) error {
+	return nil
+}
+
 func (repo UserRepositoryMock) FindByEmail(email user.Email) (user.User, error) {
 	switch email {
 	case "test1@test.com":

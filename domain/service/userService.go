@@ -30,7 +30,6 @@ func NewUserService(
 	}
 }
 
-//Passwordはこの時点ではいらないかも？
 func (service UserService) CreateUser(email user.Email, passString user.PassString) error {
 	id := service.idGenerator.Generate()
 	// TODO: timerを導入する
@@ -65,7 +64,9 @@ func (service UserService) ActivateUser(email user.Email, token string) error {
 		}
 	}
 
-	//TODO: update User
-	return nil
+	if err := service.userRepository.ActivateUserTransactional(u, a); err != nil {
+		return err
+	}
 
+	return nil
 }
