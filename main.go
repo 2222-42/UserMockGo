@@ -15,7 +15,8 @@ func main() {
 	userRepository := mysql.UserRepositoryMock{}
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
-	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator)
+	activationRepository := mysql.ActivationRepositoryMock{}
+	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationRepository)
 	userHandler := handler.NewUserHandler(userService)
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")

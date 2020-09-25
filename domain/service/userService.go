@@ -3,21 +3,30 @@ package service
 import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
+	"UserMockGo/domain/model/errors"
 	"UserMockGo/domain/model/user"
+	"net/http"
 	"time"
 )
 
 type UserService struct {
-	userRepository infrainterface.IUserRepository
-	idGenerator    infrainterface.IUserIdGenerator
-	tokenGenerator infrainterface.IUserTokenGenerator
+	userRepository       infrainterface.IUserRepository
+	idGenerator          infrainterface.IUserIdGenerator
+	tokenGenerator       infrainterface.IUserTokenGenerator
+	activationRepository infrainterface.IActivationRepository
 }
 
-func NewUserService(userRepository infrainterface.IUserRepository, idGenerator infrainterface.IUserIdGenerator, tokenGenerator infrainterface.IUserTokenGenerator) UserService {
+func NewUserService(
+	userRepository infrainterface.IUserRepository,
+	idGenerator infrainterface.IUserIdGenerator,
+	tokenGenerator infrainterface.IUserTokenGenerator,
+	activationRepository infrainterface.IActivationRepository,
+) UserService {
 	return UserService{
-		userRepository: userRepository,
-		idGenerator:    idGenerator,
-		tokenGenerator: tokenGenerator,
+		userRepository:       userRepository,
+		idGenerator:          idGenerator,
+		tokenGenerator:       tokenGenerator,
+		activationRepository: activationRepository,
 	}
 }
 
@@ -35,4 +44,28 @@ func (service UserService) CreateUser(email user.Email, passString user.PassStri
 
 	// TODO: transactional commit
 	return service.userRepository.CreateUserTransactional(u, p, a)
+}
+
+func (service UserService) ActivateUser(email user.Email, token string) error {
+	u, err := service.userRepository.FindByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	a, err := service.activationRepository.FindByUserIdAndToken(u.ID, token)
+	if err != nil {
+		return err
+	}
+
+	if !a.IsValid() {
+		return errors.MyError{
+			StatusCode: http.StatusForbidden,
+			Message:    "expired",
+			ErrorType:  "activation_token_is_expired",
+		}
+	}
+
+	//TODO: update User
+	return nil
+
 }
