@@ -18,7 +18,8 @@ func (repo UserRepositoryMock) CreateUserTransactional(user user.User, pass user
 }
 
 func (repo UserRepositoryMock) FindByEmail(email user.Email) user.User {
-	if email == "test1@test.com" {
+	switch email {
+	case "test1@test.com":
 		return user.User{
 			ID:        1,
 			Email:     "test1@test.com",
@@ -26,7 +27,7 @@ func (repo UserRepositoryMock) FindByEmail(email user.Email) user.User {
 			CreatedAt: time.Now().Unix(),
 			UpdatedAt: time.Now().Unix(),
 		}
-	} else if email == "test2@test.com" {
+	case "test2@test.com":
 		return user.User{
 			ID:        2,
 			Email:     "test1@test.com",
@@ -34,6 +35,7 @@ func (repo UserRepositoryMock) FindByEmail(email user.Email) user.User {
 			CreatedAt: time.Now().Unix() - 60*30,
 			UpdatedAt: time.Now().Unix() - 60*30,
 		}
+	default:
+		return user.User{}
 	}
-	return user.User{}
 }
