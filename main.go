@@ -12,10 +12,10 @@ import (
 
 func main() {
 	e := echo.New()
-	userRepository := mysql.UserRepositoryMock{}
+	userRepository := mysql.NewUserRepositoryMock()
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
-	activationRepository := mysql.ActivationRepositoryMock{}
+	activationRepository := mysql.NewActivationRepositoryMock()
 	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationRepository)
 	userHandler := handler.NewUserHandler(userService)
 	e.GET("/", func(c echo.Context) error {
