@@ -3,17 +3,17 @@ package user
 import (
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/errors"
-	"UserMockGo/domain/model/valueObjects"
+	"UserMockGo/lib/valueObjects/userValues"
 	"net/http"
 	"time"
 )
 
 type User struct {
-	ID        model.UserID
-	Email     valueObjects.Email
-	IsActive  bool
-	CreatedAt int64
-	UpdatedAt int64
+	ID                   model.UserID
+	Email                userValues.Email
+	IsActive             bool
+	CreatedAt            int64
+	UpdatedAt            int64
 }
 
 type Activation struct {
@@ -38,7 +38,7 @@ func ActivationNotFound(msg string) errors.MyError {
 	}
 }
 
-func NewUser(id model.UserID, email valueObjects.Email, now int64) (User, error) {
+func NewUser(id model.UserID, email userValues.Email, now int64) (User, error) {
 	if !email.IsValidForm() {
 		return User{}, errors.MyError{
 			StatusCode: http.StatusBadRequest,

@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"UserMockGo/domain/model/valueObjects"
 	"UserMockGo/domain/service"
+	"UserMockGo/lib/valueObjects/userValues"
 	"fmt"
 	"github.com/labstack/echo"
 	"net/http"
@@ -40,7 +40,7 @@ func (handler UserHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Password does not match PasswordConfirmation")
 	}
 
-	if err := handler.userService.CreateUser(valueObjects.Email(body.Email), valueObjects.PassString(body.Password)); err != nil {
+	if err := handler.userService.CreateUser(userValues.Email(body.Email), userValues.PassString(body.Password)); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, body)
@@ -53,7 +53,7 @@ func (handler UserHandler) Activate(c echo.Context) error {
 		return err
 	}
 
-	if err := handler.userService.ActivateUser(valueObjects.Email(body.Email), body.Token); err != nil {
+	if err := handler.userService.ActivateUser(userValues.Email(body.Email), body.Token); err != nil {
 		fmt.Println("Activation is failed: " + err.Error())
 		return c.JSON(http.StatusBadRequest, "Activation is failed: "+err.Error())
 	}
@@ -72,7 +72,7 @@ func (handler UserHandler) Reissue(c echo.Context) error {
 		return err
 	}
 
-	if err := handler.userService.ReissueOfActivation(valueObjects.Email(body.Email)); err != nil {
+	if err := handler.userService.ReissueOfActivation(userValues.Email(body.Email)); err != nil {
 		fmt.Println("Reissue is failed: " + err.Error())
 		return c.JSON(http.StatusBadRequest, "Reissue is failed: "+err.Error())
 	}

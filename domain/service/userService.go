@@ -5,7 +5,7 @@ import (
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/errors"
 	"UserMockGo/domain/model/user"
-	"UserMockGo/domain/model/valueObjects"
+	"UserMockGo/lib/valueObjects/userValues"
 	"net/http"
 	"time"
 )
@@ -28,7 +28,7 @@ func NewUserService(
 	}
 }
 
-func (service UserService) CreateUser(email valueObjects.Email, passString valueObjects.PassString) error {
+func (service UserService) CreateUser(email userValues.Email, passString userValues.PassString) error {
 
 	id := service.idGenerator.Generate()
 	// TODO: timerを導入する
@@ -50,7 +50,7 @@ func (service UserService) CreateUser(email valueObjects.Email, passString value
 	return service.userRepository.CreateUserTransactional(u, p, a)
 }
 
-func (service UserService) ActivateUser(email valueObjects.Email, token string) error {
+func (service UserService) ActivateUser(email userValues.Email, token string) error {
 	u, err := service.userRepository.FindByEmail(email)
 	if err != nil {
 		return err
@@ -84,7 +84,7 @@ func (service UserService) ActivateUser(email valueObjects.Email, token string) 
 	return nil
 }
 
-func (service UserService) ReissueOfActivation(email valueObjects.Email) error {
+func (service UserService) ReissueOfActivation(email userValues.Email) error {
 	u, err := service.userRepository.FindByEmail(email)
 	if err != nil {
 		return err
