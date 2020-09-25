@@ -8,12 +8,10 @@ import (
 	"time"
 )
 
-type PassString string
-
 type User struct {
 	ID                   model.UserID
 	Email                valueObjects.Email
-	PasswordConfirmation PassString
+	PasswordConfirmation valueObjects.PassString
 	IsActive             bool
 	CreatedAt            int64
 	UpdatedAt            int64
@@ -41,7 +39,6 @@ func ActivationNotFound(msg string) errors.MyError {
 	}
 }
 
-// TODO: tokenの生成と有効期限の設定は外部に切り出す。
 func NewUser(id model.UserID, email valueObjects.Email, now int64) (User, error) {
 	if !email.IsValidForm() {
 		return User{}, errors.MyError{

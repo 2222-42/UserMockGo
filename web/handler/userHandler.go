@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"UserMockGo/domain/model/user"
 	"UserMockGo/domain/model/valueObjects"
 	"UserMockGo/domain/service"
 	"fmt"
@@ -41,7 +40,7 @@ func (handler UserHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Password does not match PasswordConfirmation")
 	}
 
-	if err := handler.userService.CreateUser(valueObjects.Email(body.Email), user.PassString(body.Password)); err != nil {
+	if err := handler.userService.CreateUser(valueObjects.Email(body.Email), valueObjects.PassString(body.Password)); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, body)

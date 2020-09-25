@@ -28,7 +28,7 @@ func NewUserService(
 	}
 }
 
-func (service UserService) CreateUser(email valueObjects.Email, passString user.PassString) error {
+func (service UserService) CreateUser(email valueObjects.Email, passString valueObjects.PassString) error {
 
 	id := service.idGenerator.Generate()
 	// TODO: timerを導入する
@@ -41,7 +41,10 @@ func (service UserService) CreateUser(email valueObjects.Email, passString user.
 		return err
 	}
 
-	p := user.NewPassword(userId, passString)
+	p, err := user.NewPassword(userId, passString)
+	if err != nil {
+		return err
+	}
 	a := user.NewActivation(userId, token, expiresAt)
 
 	return service.userRepository.CreateUserTransactional(u, p, a)
