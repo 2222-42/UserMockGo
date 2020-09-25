@@ -11,20 +11,23 @@ import (
 )
 
 type UserService struct {
-	userRepository infrainterface.IUserRepository
-	idGenerator    infrainterface.IUserIdGenerator
-	tokenGenerator infrainterface.IUserTokenGenerator
+	userRepository     infrainterface.IUserRepository
+	idGenerator        infrainterface.IUserIdGenerator
+	tokenGenerator     infrainterface.IUserTokenGenerator
+	activationNotifier infrainterface.IActivationNotifier
 }
 
 func NewUserService(
 	userRepository infrainterface.IUserRepository,
 	idGenerator infrainterface.IUserIdGenerator,
 	tokenGenerator infrainterface.IUserTokenGenerator,
+	activationNotifier infrainterface.IActivationNotifier,
 ) UserService {
 	return UserService{
-		userRepository: userRepository,
-		idGenerator:    idGenerator,
-		tokenGenerator: tokenGenerator,
+		userRepository:     userRepository,
+		idGenerator:        idGenerator,
+		tokenGenerator:     tokenGenerator,
+		activationNotifier: activationNotifier,
 	}
 }
 
@@ -47,7 +50,11 @@ func (service UserService) CreateUser(email userValues.Email, passString userVal
 	}
 	a := user.NewActivation(userId, token, expiresAt)
 
-	return service.userRepository.CreateUserTransactional(u, p, a)
+	if err := service.userRepository.CreateUserTransactional(u, p, a); err != nil {
+		return err
+	}
+
+	return service.activationNotifier.SendEmail(u, a)
 }
 
 func (service UserService) ActivateUser(email userValues.Email, token string) error {
