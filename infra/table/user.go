@@ -3,7 +3,7 @@ package table
 import (
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/user"
-	"UserMockGo/domain/model/valueObjects"
+	"UserMockGo/lib/valueObjects/userValues"
 )
 
 type User struct {
@@ -27,7 +27,7 @@ func MapFromUserModel(user user.User) (User, error) {
 func (u User) MapToUserModel() (user.User, error) {
 	return user.User{
 		ID:        model.UserID(u.ID),
-		Email:     valueObjects.Email(u.Email),
+		Email:     userValues.Email(u.Email),
 		IsActive:  u.IsActive,
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
