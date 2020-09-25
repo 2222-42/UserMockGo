@@ -26,3 +26,11 @@ func NewPassword(id model.UserID, password userValues.PassString) (Password, err
 		Password: password,
 	}, nil
 }
+
+func UserPassNotFound(msg string) errors.MyError {
+	return errors.MyError{
+		StatusCode: http.StatusNotFound,
+		Message:    msg,
+		ErrorType:  "",
+	}
+}

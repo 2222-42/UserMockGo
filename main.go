@@ -2,6 +2,7 @@ package main
 
 import (
 	"UserMockGo/domain/service"
+	"UserMockGo/infra/encryption"
 	"UserMockGo/infra/mysql"
 	"UserMockGo/infra/randomintgenerator"
 	"UserMockGo/infra/token"
@@ -15,7 +16,8 @@ func main() {
 	userRepository := mysql.NewUserRepositoryMock()
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
-	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator)
+	LoginInfra := encryption.NewLoginInfraMock()
+	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, LoginInfra)
 	userHandler := handler.NewUserHandler(userService)
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")

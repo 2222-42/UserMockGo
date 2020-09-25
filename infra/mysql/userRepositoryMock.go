@@ -4,8 +4,8 @@ import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/user"
-	"UserMockGo/lib/valueObjects/userValues"
 	"UserMockGo/infra/table"
+	"UserMockGo/lib/valueObjects/userValues"
 	"fmt"
 	"strconv"
 	"time"
@@ -147,4 +147,13 @@ func (repo UserRepositoryMock) FindByUserIdAndToken(userId model.UserID, token s
 // 既存のactivationを消して作るのをTransactionalに実施する
 func (repo UserRepositoryMock) ReissueOfActivationTransactional(activation user.Activation) error {
 	return nil
+}
+
+func (repo UserRepositoryMock) GetHashedPassword(id model.UserID) (string, error) {
+	for _, p := range *repo.Passwords {
+		if p.ID == int64(id) {
+			return p.MapToHashedString(), nil
+		}
+	}
+	return "", user.UserPassNotFound("")
 }
