@@ -3,16 +3,16 @@ package user
 import (
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/errors"
+	"UserMockGo/domain/model/valueObjects"
 	"net/http"
 	"time"
 )
 
-type Email string
 type PassString string
 
 type User struct {
 	ID                   model.UserID
-	Email                Email // TODO: add type and make validation
+	Email                valueObjects.Email
 	PasswordConfirmation PassString
 	IsActive             bool
 	CreatedAt            int64
@@ -42,14 +42,22 @@ func ActivationNotFound(msg string) errors.MyError {
 }
 
 // TODO: tokenの生成と有効期限の設定は外部に切り出す。
-func NewUser(id model.UserID, email Email, now int64) User {
+func NewUser(id model.UserID, email valueObjects.Email, now int64) (User, error) {
+	if !email.IsValidForm() {
+		return User{}, errors.MyError{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Email Form is not Valid",
+			ErrorType:  "email_format_is_violated",
+		}
+	}
+
 	return User{
 		ID:        id,
 		Email:     email,
 		IsActive:  false,
 		CreatedAt: now,
 		UpdatedAt: now,
-	}
+	}, nil
 }
 
 func NewActivation(id model.UserID, token string, expiresAt int64) Activation {

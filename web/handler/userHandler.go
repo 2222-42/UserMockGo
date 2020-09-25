@@ -2,6 +2,7 @@ package handler
 
 import (
 	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/valueObjects"
 	"UserMockGo/domain/service"
 	"fmt"
 	"github.com/labstack/echo"
@@ -40,8 +41,8 @@ func (handler UserHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Password does not match PasswordConfirmation")
 	}
 
-	if err := handler.userService.CreateUser(user.Email(body.Email), user.PassString(body.Password)); err != nil {
-		return err
+	if err := handler.userService.CreateUser(valueObjects.Email(body.Email), user.PassString(body.Password)); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, body)
 }
@@ -53,7 +54,7 @@ func (handler UserHandler) Activate(c echo.Context) error {
 		return err
 	}
 
-	if err := handler.userService.ActivateUser(user.Email(body.Email), body.Token); err != nil {
+	if err := handler.userService.ActivateUser(valueObjects.Email(body.Email), body.Token); err != nil {
 		fmt.Println("Activation is failed: " + err.Error())
 		return c.JSON(http.StatusBadRequest, "Activation is failed: "+err.Error())
 	}
