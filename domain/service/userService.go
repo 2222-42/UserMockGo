@@ -10,23 +10,20 @@ import (
 )
 
 type UserService struct {
-	userRepository       infrainterface.IUserRepository
-	idGenerator          infrainterface.IUserIdGenerator
-	tokenGenerator       infrainterface.IUserTokenGenerator
-	activationRepository infrainterface.IActivationRepository
+	userRepository infrainterface.IUserRepository
+	idGenerator    infrainterface.IUserIdGenerator
+	tokenGenerator infrainterface.IUserTokenGenerator
 }
 
 func NewUserService(
 	userRepository infrainterface.IUserRepository,
 	idGenerator infrainterface.IUserIdGenerator,
 	tokenGenerator infrainterface.IUserTokenGenerator,
-	activationRepository infrainterface.IActivationRepository,
 ) UserService {
 	return UserService{
-		userRepository:       userRepository,
-		idGenerator:          idGenerator,
-		tokenGenerator:       tokenGenerator,
-		activationRepository: activationRepository,
+		userRepository: userRepository,
+		idGenerator:    idGenerator,
+		tokenGenerator: tokenGenerator,
 	}
 }
 
@@ -51,7 +48,7 @@ func (service UserService) ActivateUser(email user.Email, token string) error {
 		return err
 	}
 
-	a, err := service.activationRepository.FindByUserIdAndToken(u.ID, token)
+	a, err := service.userRepository.FindByUserIdAndToken(u.ID, token)
 	if err != nil {
 		return err
 	}
