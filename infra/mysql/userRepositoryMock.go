@@ -5,6 +5,7 @@ import (
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/user"
 	"UserMockGo/domain/model/valueObjects"
+	"UserMockGo/infra/table"
 	"strconv"
 	"time"
 )
@@ -17,6 +18,11 @@ func NewUserRepositoryMock() infrainterface.IUserRepository {
 }
 
 func (repo UserRepositoryMock) CreateUserTransactional(user user.User, pass user.Password, activation user.Activation) error {
+	_, err := table.MapFromUserPasswordModel(pass)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
