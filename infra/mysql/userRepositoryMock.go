@@ -38,8 +38,16 @@ func (repo UserRepositoryMock) FindByEmail(email valueObjects.Email) (user.User,
 	case "test2@test.com":
 		return user.User{
 			ID:        2,
-			Email:     "test1@test.com",
+			Email:     "test2@test.com",
 			IsActive:  false,
+			CreatedAt: time.Now().Unix() - 60*30,
+			UpdatedAt: time.Now().Unix() - 60*30,
+		}, nil
+	case "test3@test.com":
+		return user.User{
+			ID:        3,
+			Email:     "test3@test.com",
+			IsActive:  true,
 			CreatedAt: time.Now().Unix() - 60*30,
 			UpdatedAt: time.Now().Unix() - 60*30,
 		}, nil

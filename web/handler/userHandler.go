@@ -60,3 +60,22 @@ func (handler UserHandler) Activate(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, body)
 }
+
+type ReissueParam struct {
+	Email string `json:"email"`
+}
+
+func (handler UserHandler) Reissue(c echo.Context) error {
+	body := new(ReissueParam)
+	if err := c.Bind(body); err != nil {
+		fmt.Println("Request is failed: " + err.Error())
+		return err
+	}
+
+	if err := handler.userService.ReissueOfActivation(valueObjects.Email(body.Email)); err != nil {
+		fmt.Println("Reissue is failed: " + err.Error())
+		return c.JSON(http.StatusBadRequest, "Reissue is failed: "+err.Error())
+	}
+
+	return c.JSON(http.StatusOK, body)
+}
