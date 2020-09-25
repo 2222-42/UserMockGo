@@ -1,11 +1,11 @@
 package encryption
 
 import (
-	"UserMockGo/domain/model/valueObjects"
+	"UserMockGo/lib/valueObjects/userValues"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func PassEncryption(pass valueObjects.PassString) (string, error) {
+func PassEncryption(pass userValues.PassString) (string, error) {
 	hp, err := bcrypt.GenerateFromPassword([]byte(string(pass)), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
@@ -14,6 +14,6 @@ func PassEncryption(pass valueObjects.PassString) (string, error) {
 	return string(hp), nil
 }
 
-func ComparePass(hp []byte, pass valueObjects.PassString) bool {
+func ComparePass(hp []byte, pass userValues.PassString) bool {
 	return bcrypt.CompareHashAndPassword(hp, []byte(string(pass))) == nil
 }
