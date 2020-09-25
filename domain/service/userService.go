@@ -48,6 +48,14 @@ func (service UserService) ActivateUser(email user.Email, token string) error {
 		return err
 	}
 
+	if u.IsActive {
+		return errors.MyError{
+			StatusCode: http.StatusForbidden,
+			Message:    "The user is already activated.",
+			ErrorType:  "user_not_needed_to_activate",
+		}
+	}
+
 	a, err := service.userRepository.FindByUserIdAndToken(u.ID, token)
 	if err != nil {
 		return err
