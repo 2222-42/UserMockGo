@@ -34,5 +34,5 @@ func (service UserService) CreateUser(email user.Email, passString user.PassStri
 	a := user.NewActivation(userId, token, expiresAt)
 
 	// TODO: transactional commit
-	return service.userRepository.CreateUser(u, p, a)
+	return service.userRepository.CreateUserTransactional(u, p, a)
 }

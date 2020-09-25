@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model/user"
 	"time"
 )
@@ -8,7 +9,11 @@ import (
 type UserRepositoryMock struct {
 }
 
-func (repo UserRepositoryMock) CreateUser(user user.User, pass user.Password, activation user.Activation) error {
+func NewUserRepositoryMock() infrainterface.IUserRepository {
+	return UserRepositoryMock{}
+}
+
+func (repo UserRepositoryMock) CreateUserTransactional(user user.User, pass user.Password, activation user.Activation) error {
 	return nil
 }
 
