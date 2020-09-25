@@ -1,4 +1,4 @@
-package valueObjects
+package userValues
 
 import "regexp"
 
