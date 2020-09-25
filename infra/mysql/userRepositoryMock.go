@@ -4,6 +4,7 @@ import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/valueObjects"
 	"strconv"
 	"time"
 )
@@ -23,7 +24,7 @@ func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activat
 	return nil
 }
 
-func (repo UserRepositoryMock) FindByEmail(email user.Email) (user.User, error) {
+func (repo UserRepositoryMock) FindByEmail(email valueObjects.Email) (user.User, error) {
 	switch email {
 	case "test1@test.com":
 		return user.User{
