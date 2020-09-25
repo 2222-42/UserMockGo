@@ -3,33 +3,75 @@ package service
 import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
+	"UserMockGo/domain/model/errors"
 	"UserMockGo/domain/model/user"
+	"net/http"
 	"time"
 )
 
 type UserService struct {
 	userRepository infrainterface.IUserRepository
 	idGenerator    infrainterface.IUserIdGenerator
+	tokenGenerator infrainterface.IUserTokenGenerator
 }
 
-func NewUserService(userRepository infrainterface.IUserRepository, idGenerator infrainterface.IUserIdGenerator) UserService {
+func NewUserService(
+	userRepository infrainterface.IUserRepository,
+	idGenerator infrainterface.IUserIdGenerator,
+	tokenGenerator infrainterface.IUserTokenGenerator,
+) UserService {
 	return UserService{
 		userRepository: userRepository,
 		idGenerator:    idGenerator,
+		tokenGenerator: tokenGenerator,
 	}
 }
 
-//Passwordはこの時点ではいらないかも？
 func (service UserService) CreateUser(email user.Email, passString user.PassString) error {
 	id := service.idGenerator.Generate()
 	// TODO: timerを導入する
 	now := time.Now().Unix()
+	token, expiresAt := service.tokenGenerator.GenerateTokenAndExpiresAt()
 	userId := model.UserID(id)
 
 	u := user.NewUser(userId, email, now)
 	p := user.NewPassword(userId, passString)
-	a := user.NewActivation(userId, "", now+60*60)
+	a := user.NewActivation(userId, token, expiresAt)
 
 	// TODO: transactional commit
-	return service.userRepository.CreateUser(u, p, a)
+	return service.userRepository.CreateUserTransactional(u, p, a)
+}
+
+func (service UserService) ActivateUser(email user.Email, token string) error {
+	u, err := service.userRepository.FindByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	if u.IsActive {
+		return errors.MyError{
+			StatusCode: http.StatusForbidden,
+			Message:    "The user is already activated.",
+			ErrorType:  "user_not_needed_to_activate",
+		}
+	}
+
+	a, err := service.userRepository.FindByUserIdAndToken(u.ID, token)
+	if err != nil {
+		return err
+	}
+
+	if !a.IsValid() {
+		return errors.MyError{
+			StatusCode: http.StatusForbidden,
+			Message:    "expired",
+			ErrorType:  "activation_token_is_expired",
+		}
+	}
+
+	if err := service.userRepository.ActivateUserTransactional(u, a); err != nil {
+		return err
+	}
+
+	return nil
 }

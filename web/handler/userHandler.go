@@ -24,8 +24,12 @@ type UserParam struct {
 	PasswordConfirmation string `json:"password_confirmation"`
 }
 
+type ActivationParam struct {
+	Email string `json:"email"`
+	Token string `json:"token"`
+}
+
 func (handler UserHandler) Create(c echo.Context) error {
-	fmt.Println("called")
 	body := new(UserParam)
 	if err := c.Bind(body); err != nil {
 		fmt.Println("Request is failed: " + err.Error())
@@ -39,5 +43,20 @@ func (handler UserHandler) Create(c echo.Context) error {
 	if err := handler.userService.CreateUser(user.Email(body.Email), user.PassString(body.Password)); err != nil {
 		return err
 	}
+	return c.JSON(http.StatusOK, body)
+}
+
+func (handler UserHandler) Activate(c echo.Context) error {
+	body := new(ActivationParam)
+	if err := c.Bind(body); err != nil {
+		fmt.Println("Request is failed: " + err.Error())
+		return err
+	}
+
+	if err := handler.userService.ActivateUser(user.Email(body.Email), body.Token); err != nil {
+		fmt.Println("Activation is failed: " + err.Error())
+		return c.JSON(http.StatusBadRequest, "Activation is failed: "+err.Error())
+	}
+
 	return c.JSON(http.StatusOK, body)
 }
