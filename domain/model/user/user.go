@@ -32,6 +32,14 @@ func UserNotFound(msg string) errors.MyError {
 	}
 }
 
+func ActivationNotFound(msg string) errors.MyError {
+	return errors.MyError{
+		StatusCode: http.StatusNotFound,
+		Message:    msg,
+		ErrorType:  "activation_not_found",
+	}
+}
+
 // TODO: tokenの生成と有効期限の設定は外部に切り出す。
 func NewUser(id model.UserID, email Email, now int64) User {
 	return User{
