@@ -20,6 +20,7 @@ func (repo UserRepositoryMock) CreateUserTransactional(user user.User, pass user
 	return nil
 }
 
+//　Userを更新して、それのActivationを消すのをTransactionalにやる
 func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activation user.Activation) error {
 	return nil
 }
@@ -37,8 +38,16 @@ func (repo UserRepositoryMock) FindByEmail(email valueObjects.Email) (user.User,
 	case "test2@test.com":
 		return user.User{
 			ID:        2,
-			Email:     "test1@test.com",
+			Email:     "test2@test.com",
 			IsActive:  false,
+			CreatedAt: time.Now().Unix() - 60*30,
+			UpdatedAt: time.Now().Unix() - 60*30,
+		}, nil
+	case "test3@test.com":
+		return user.User{
+			ID:        3,
+			Email:     "test3@test.com",
+			IsActive:  true,
 			CreatedAt: time.Now().Unix() - 60*30,
 			UpdatedAt: time.Now().Unix() - 60*30,
 		}, nil
@@ -67,4 +76,9 @@ func (repo UserRepositoryMock) FindByUserIdAndToken(userId model.UserID, token s
 		}
 	}
 	return user.Activation{}, user.ActivationNotFound(strconv.Itoa(int(userId)))
+}
+
+// 既存のactivationを消して作るのをTransactionalに実施する
+func (repo UserRepositoryMock) ReissueOfActivationTransactional(activation user.Activation) error {
+	return nil
 }

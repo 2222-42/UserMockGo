@@ -11,4 +11,5 @@ type IUserRepository interface {
 	FindByEmail(email valueObjects.Email) (user.User, error)
 	ActivateUserTransactional(user user.User, activation user.Activation) error
 	FindByUserIdAndToken(userId model.UserID, token string) (user.Activation, error)
+	ReissueOfActivationTransactional(activation user.Activation) error
 }
