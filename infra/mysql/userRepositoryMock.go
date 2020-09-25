@@ -20,6 +20,7 @@ func (repo UserRepositoryMock) CreateUserTransactional(user user.User, pass user
 	return nil
 }
 
+//　Userを更新して、それのActivationを消すのをTransactionalにやる
 func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activation user.Activation) error {
 	return nil
 }
@@ -67,4 +68,9 @@ func (repo UserRepositoryMock) FindByUserIdAndToken(userId model.UserID, token s
 		}
 	}
 	return user.Activation{}, user.ActivationNotFound(strconv.Itoa(int(userId)))
+}
+
+// 既存のactivationを消して作るのをTransactionalに実施する
+func (repo UserRepositoryMock) ReissueOfActivationTransactional(activation user.Activation) error {
+	return nil
 }

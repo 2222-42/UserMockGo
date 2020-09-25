@@ -83,3 +83,23 @@ func (service UserService) ActivateUser(email valueObjects.Email, token string) 
 
 	return nil
 }
+
+func (service UserService) ReissueOfActivation(email valueObjects.Email) error {
+	u, err := service.userRepository.FindByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	if u.IsActive {
+		return errors.MyError{
+			StatusCode: http.StatusForbidden,
+			Message:    "The user is already activated.",
+			ErrorType:  "user_not_needed_to_activate",
+		}
+	}
+
+	token, expiresAt := service.tokenGenerator.GenerateTokenAndExpiresAt()
+	a := user.NewActivation(u.ID, token, expiresAt)
+
+	return service.userRepository.ReissueOfActivationTransactional(a)
+}
