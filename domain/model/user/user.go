@@ -4,6 +4,7 @@ import (
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/errors"
 	"net/http"
+	"time"
 )
 
 type Email string
@@ -57,4 +58,8 @@ func NewActivation(id model.UserID, token string, expiresAt int64) Activation {
 		ActivationToken:          token,
 		ActivationTokenExpiresAt: expiresAt,
 	}
+}
+
+func (a Activation) IsValid() bool {
+	return a.ActivationTokenExpiresAt > time.Now().Unix()
 }
