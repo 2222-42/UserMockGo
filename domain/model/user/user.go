@@ -1,6 +1,10 @@
 package user
 
-import "UserMockGo/domain/model"
+import (
+	"UserMockGo/domain/model"
+	"UserMockGo/domain/model/errors"
+	"net/http"
+)
 
 type Email string
 type PassString string
@@ -18,6 +22,14 @@ type Activation struct {
 	ID                       model.UserID
 	ActivationToken          string
 	ActivationTokenExpiresAt int64
+}
+
+func UserNotFound(msg string) errors.MyError {
+	return errors.MyError{
+		StatusCode: http.StatusNotFound,
+		Message:    msg,
+		ErrorType:  "user_not_found",
+	}
 }
 
 // TODO: tokenの生成と有効期限の設定は外部に切り出す。
