@@ -5,23 +5,79 @@ import (
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/user"
 	"UserMockGo/lib/valueObjects/userValues"
+	"UserMockGo/infra/table"
+	"fmt"
 	"strconv"
 	"time"
 )
 
 type UserRepositoryMock struct {
+	Users       *[]table.User
+	Activations *[]table.Activation
+	Passwords   *[]table.Password
 }
 
 func NewUserRepositoryMock() infrainterface.IUserRepository {
-	return UserRepositoryMock{}
+	users := []table.User{}
+	activations := []table.Activation{}
+	passwords := []table.Password{}
+
+	return UserRepositoryMock{
+		Users:       &users,
+		Activations: &activations,
+		Passwords:   &passwords,
+	}
 }
 
 func (repo UserRepositoryMock) CreateUserTransactional(user user.User, pass user.Password, activation user.Activation) error {
+	u, err := table.MapFromUserModel(user)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%v\n", u)
+
+	p, err := table.MapFromUserPasswordModel(pass)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%v\n", p)
+
+	a, err := table.MapFromUserActivationModel(activation)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%v\n", a)
+
+	*repo.Users = append(*repo.Users, u)
+	*repo.Activations = append(*repo.Activations, a)
+	*repo.Passwords = append(*repo.Passwords, p)
+
 	return nil
 }
 
 //　Userを更新して、それのActivationを消すのをTransactionalにやる
 func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activation user.Activation) error {
+	users := []table.User{}
+	for _, u := range *repo.Users {
+		if u.ID != int64(user.ID) {
+			users = append(users, u)
+		} else {
+			user.IsActive = true
+			updateUser, _ := table.MapFromUserModel(user)
+			users = append(users, updateUser)
+		}
+	}
+	repo.Users = &users
+
+	activations := []table.Activation{}
+	for _, a := range *repo.Activations {
+		fmt.Printf("%v\n", a)
+		if a.ID != int64(activation.ID) {
+			activations = append(activations, a)
+		}
+	}
+	repo.Activations = &activations
+
 	return nil
 }
 
@@ -52,6 +108,11 @@ func (repo UserRepositoryMock) FindByEmail(email userValues.Email) (user.User, e
 			UpdatedAt: time.Now().Unix() - 60*30,
 		}, nil
 	default:
+		for _, u := range *repo.Users {
+			if u.Email == string(email) {
+				return u.MapToUserModel()
+			}
+		}
 		return user.User{}, user.UserNotFound(string(email))
 	}
 }
@@ -72,6 +133,11 @@ func (repo UserRepositoryMock) FindByUserIdAndToken(userId model.UserID, token s
 				ActivationTokenExpiresAt: 0,
 			}, nil
 		default:
+			for _, a := range *repo.Activations {
+				if a.ID == int64(userId) && a.ActivationToken == token {
+					return a.MapToActivationModel()
+				}
+			}
 			return user.Activation{}, user.ActivationNotFound(strconv.Itoa(int(userId)))
 		}
 	}

@@ -11,7 +11,6 @@ import (
 type User struct {
 	ID                   model.UserID
 	Email                userValues.Email
-	PasswordConfirmation userValues.PassString
 	IsActive             bool
 	CreatedAt            int64
 	UpdatedAt            int64
