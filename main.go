@@ -21,5 +21,6 @@ func main() {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 	e.POST("/users", userHandler.Create)
+	e.POST("/user/activate", userHandler.Activate)
 	e.Logger.Fatal(e.Start(":8080"))
 }
