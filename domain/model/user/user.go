@@ -9,12 +9,11 @@ import (
 )
 
 type User struct {
-	ID                   model.UserID
-	Email                valueObjects.Email
-	PasswordConfirmation valueObjects.PassString
-	IsActive             bool
-	CreatedAt            int64
-	UpdatedAt            int64
+	ID        model.UserID
+	Email     valueObjects.Email
+	IsActive  bool
+	CreatedAt int64
+	UpdatedAt int64
 }
 
 type Activation struct {
