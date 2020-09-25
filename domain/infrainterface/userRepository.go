@@ -12,4 +12,5 @@ type IUserRepository interface {
 	ActivateUserTransactional(user user.User, activation user.Activation) error
 	FindByUserIdAndToken(userId model.UserID, token string) (user.Activation, error)
 	ReissueOfActivationTransactional(activation user.Activation) error
+	GetHashedPassword(id model.UserID) (string, error)
 }

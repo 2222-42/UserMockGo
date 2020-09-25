@@ -14,17 +14,20 @@ type UserService struct {
 	userRepository infrainterface.IUserRepository
 	idGenerator    infrainterface.IUserIdGenerator
 	tokenGenerator infrainterface.IUserTokenGenerator
+	loginInfra     infrainterface.ILogin
 }
 
 func NewUserService(
 	userRepository infrainterface.IUserRepository,
 	idGenerator infrainterface.IUserIdGenerator,
 	tokenGenerator infrainterface.IUserTokenGenerator,
+	loginInfra infrainterface.ILogin,
 ) UserService {
 	return UserService{
 		userRepository: userRepository,
 		idGenerator:    idGenerator,
 		tokenGenerator: tokenGenerator,
+		loginInfra:     loginInfra,
 	}
 }
 
@@ -102,4 +105,24 @@ func (service UserService) ReissueOfActivation(email userValues.Email) error {
 	a := user.NewActivation(u.ID, token, expiresAt)
 
 	return service.userRepository.ReissueOfActivationTransactional(a)
+}
+
+func (service UserService) Login(email userValues.Email, passString userValues.PassString) error {
+
+	u, err := service.userRepository.FindByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	hp, err := service.userRepository.GetHashedPassword(u.ID)
+
+	if err != nil {
+		return err
+	}
+
+	if service.loginInfra.CheckPassAndHash(hp, passString) {
+		return nil
+	}
+
+	return nil
 }
