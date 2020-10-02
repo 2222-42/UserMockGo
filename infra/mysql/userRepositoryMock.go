@@ -4,8 +4,8 @@ import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/user"
-	"UserMockGo/lib/valueObjects/userValues"
 	"UserMockGo/infra/table"
+	"UserMockGo/lib/valueObjects/userValues"
 	"fmt"
 	"strconv"
 	"time"
@@ -19,7 +19,19 @@ type UserRepositoryMock struct {
 
 func NewUserRepositoryMock() infrainterface.IUserRepository {
 	users := []table.User{}
+	users = append(users, table.User{
+		ID:        1,
+		Email:     "test1@test.com",
+		IsActive:  false,
+		CreatedAt: time.Now().Unix(),
+		UpdatedAt: time.Now().Unix(),
+	})
 	activations := []table.Activation{}
+	activations = append(activations, table.Activation{
+		ID:                       1,
+		ActivationToken:          "aaa",
+		ActivationTokenExpiresAt: 2145884400,
+	})
 	passwords := []table.Password{}
 
 	return UserRepositoryMock{
@@ -67,7 +79,7 @@ func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activat
 			users = append(users, updateUser)
 		}
 	}
-	repo.Users = &users
+	*repo.Users = users
 
 	activations := []table.Activation{}
 	for _, a := range *repo.Activations {
@@ -76,21 +88,13 @@ func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activat
 			activations = append(activations, a)
 		}
 	}
-	repo.Activations = &activations
+	*repo.Activations = activations
 
 	return nil
 }
 
 func (repo UserRepositoryMock) FindByEmail(email userValues.Email) (user.User, error) {
 	switch email {
-	case "test1@test.com":
-		return user.User{
-			ID:        1,
-			Email:     "test1@test.com",
-			IsActive:  false,
-			CreatedAt: time.Now().Unix(),
-			UpdatedAt: time.Now().Unix(),
-		}, nil
 	case "test2@test.com":
 		return user.User{
 			ID:        2,

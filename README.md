@@ -12,7 +12,7 @@ curl -XPOST -H "content-type:application/json" localhost:8080/users --data '{"em
 ### ActivateUser
 
 ```
-curl -XPOST -H "content-type:application/json" localhost:8080/user/activate --data '{"email": "test1@test.com", "token":"aaa"}'
+curl 'localhost:8080/user/activate?email=test1@test.com&token=aaa'
 ```
 
 ### Reissue Token
