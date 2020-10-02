@@ -6,13 +6,13 @@
 ### Create User
 
 ```
-curl -XPOST -H "content-type:application/json" localhost:8080/users --data '{"email": "teste@test.com", "password":"testtesttest", "password_confirmation":"testtesttest"}'
+curl -XPOST -H "content-type:application/json" localhost:8080/users --data '{"email": "satoru.hanada@matsuri-tech.com", "password":"testtesttest", "password_confirmation":"testtesttest"}'
 ```
 
 ### ActivateUser
 
 ```
-curl -XPOST -H "content-type:application/json" localhost:8080/user/activate --data '{"email": "test1@test.com", "token":"aaa"}'
+curl 'localhost:8080/user/activate?email=test1@test.com&token=aaa'
 ```
 
 ### Reissue Token
@@ -20,4 +20,8 @@ curl -XPOST -H "content-type:application/json" localhost:8080/user/activate --da
 failed: 
 ```
 curl -XPOST -H "content-type:application/json" localhost:8080/user/reissue --data '{"email": "test3@test.com"}'
+```
+
+```
+curl -XPOST -H "content-type:application/json" localhost:8080/user/reissue --data '{"email": "satoru.hanada@matsuri-tech.com", "password":"testtesttest", "password_confirmation":"testtesttest"}'
 ```

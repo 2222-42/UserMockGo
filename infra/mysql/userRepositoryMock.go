@@ -19,7 +19,19 @@ type UserRepositoryMock struct {
 
 func NewUserRepositoryMock() infrainterface.IUserRepository {
 	users := []table.User{}
+	users = append(users, table.User{
+		ID:        1,
+		Email:     "test1@test.com",
+		IsActive:  false,
+		CreatedAt: time.Now().Unix(),
+		UpdatedAt: time.Now().Unix(),
+	})
 	activations := []table.Activation{}
+	activations = append(activations, table.Activation{
+		ID:                       1,
+		ActivationToken:          "aaa",
+		ActivationTokenExpiresAt: 2145884400,
+	})
 	passwords := []table.Password{}
 
 	return UserRepositoryMock{
@@ -67,30 +79,21 @@ func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activat
 			users = append(users, updateUser)
 		}
 	}
-	repo.Users = &users
+	*repo.Users = users
 
 	activations := []table.Activation{}
 	for _, a := range *repo.Activations {
-		fmt.Printf("%v\n", a)
 		if a.ID != int64(activation.ID) {
 			activations = append(activations, a)
 		}
 	}
-	repo.Activations = &activations
+	*repo.Activations = activations
 
 	return nil
 }
 
 func (repo UserRepositoryMock) FindByEmail(email userValues.Email) (user.User, error) {
 	switch email {
-	case "test1@test.com":
-		return user.User{
-			ID:        1,
-			Email:     "test1@test.com",
-			IsActive:  false,
-			CreatedAt: time.Now().Unix(),
-			UpdatedAt: time.Now().Unix(),
-		}, nil
 	case "test2@test.com":
 		return user.User{
 			ID:        2,
@@ -146,6 +149,21 @@ func (repo UserRepositoryMock) FindByUserIdAndToken(userId model.UserID, token s
 
 // 既存のactivationを消して作るのをTransactionalに実施する
 func (repo UserRepositoryMock) ReissueOfActivationTransactional(activation user.Activation) error {
+	activations := []table.Activation{}
+	newActivation, err := table.MapFromUserActivationModel(activation)
+	if err != nil {
+		return err
+	}
+
+	for _, a := range *repo.Activations {
+		if a.ID != int64(activation.ID) {
+			activations = append(activations, a)
+		} else {
+			activations = append(activations, newActivation)
+		}
+	}
+	*repo.Activations = activations
+
 	return nil
 }
 
