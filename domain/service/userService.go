@@ -25,6 +25,7 @@ func NewUserService(
 	tokenGenerator infrainterface.IUserTokenGenerator,
 	activationNotifier infrainterface.IActivationNotifier,
 	loginInfra infrainterface.ILogin,
+	tokenManager infrainterface.ITokenManager,
 ) UserService {
 	return UserService{
 		userRepository:     userRepository,
@@ -32,13 +33,14 @@ func NewUserService(
 		tokenGenerator:     tokenGenerator,
 		activationNotifier: activationNotifier,
 		loginInfra:         loginInfra,
+		tokenManager:       tokenManager,
 	}
 }
 
 func notValidLoginInfoError() error {
 	return errors.MyError{
 		StatusCode: http.StatusForbidden,
-		Message:    "Check User Mail",
+		Message:    "Check Login Info",
 		ErrorType:  "not_valid_login_info",
 	}
 }
@@ -130,13 +132,21 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 
 	u, err := service.userRepository.FindByEmail(email)
 	if err != nil {
-		return "", notValidLoginInfoError()
+		return "", err //notValidLoginInfoError()
+	}
+
+	if !u.IsActive {
+		return "", errors.MyError{
+			StatusCode: http.StatusForbidden,
+			Message:    "Should Authorize",
+			ErrorType:  "not_valid_user_info",
+		}
 	}
 
 	hp, err := service.userRepository.GetHashedPassword(u.ID)
 
 	if err != nil {
-		return "", notValidLoginInfoError()
+		return "", err //notValidLoginInfoError()
 	}
 
 	if !service.loginInfra.CheckPassAndHash(hp, passString) {

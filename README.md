@@ -25,3 +25,9 @@ curl -XPOST -H "content-type:application/json" localhost:8080/user/reissue --dat
 ```
 curl -XPOST -H "content-type:application/json" localhost:8080/user/reissue --data '{"email": "satoru.hanada@matsuri-tech.com", "password":"testtesttest", "password_confirmation":"testtesttest"}'
 ```
+
+### Login
+
+```
+curl -XPOST -H "content-type:application/json" localhost:8080/user/login --data '{"email": "test3@test.com", "password":"testtesttest"}'
+```

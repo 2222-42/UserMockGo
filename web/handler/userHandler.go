@@ -95,7 +95,7 @@ func (handler UserHandler) Login(c echo.Context) error {
 	token, err := handler.userService.Login(userValues.Email(body.Email), userValues.PassString(body.Password))
 	if err != nil {
 		fmt.Println("Login is failed: " + err.Error())
-		return c.JSON(http.StatusBadRequest, "Reissue is failed: "+err.Error())
+		return c.JSON(http.StatusBadRequest, "Login is failed: "+err.Error())
 	}
 
 	return c.JSON(http.StatusOK, token)

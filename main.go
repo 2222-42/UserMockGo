@@ -3,6 +3,7 @@ package main
 import (
 	"UserMockGo/domain/service"
 	"UserMockGo/infra/encryption"
+	"UserMockGo/infra/jwtManager"
 	"UserMockGo/infra/mysql"
 	"UserMockGo/infra/notifier"
 	"UserMockGo/infra/randomintgenerator"
@@ -19,7 +20,8 @@ func main() {
 	userTokenGenerator := token.UserTokenGeneratorMock{}
 	activationNotifier := notifier.NewActivationNotifier()
 	LoginInfra := encryption.NewLoginInfraMock()
-	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, LoginInfra)
+	tokenManager := jwtManager.NewTokenManagerMock()
+	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, LoginInfra, tokenManager)
 	userHandler := handler.NewUserHandler(userService)
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
