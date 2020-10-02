@@ -21,3 +21,7 @@ func MapFromUserPasswordModel(password user.Password) (Password, error) {
 		Password: hp,
 	}, nil
 }
+
+func (p Password) MapToHashedString() string {
+	return p.Password
+}

@@ -3,6 +3,7 @@ package service
 import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
+	"UserMockGo/domain/model/authorization"
 	"UserMockGo/domain/model/errors"
 	"UserMockGo/domain/model/user"
 	"UserMockGo/lib/valueObjects/userValues"
@@ -15,6 +16,8 @@ type UserService struct {
 	idGenerator        infrainterface.IUserIdGenerator
 	tokenGenerator     infrainterface.IUserTokenGenerator
 	activationNotifier infrainterface.IActivationNotifier
+	loginInfra         infrainterface.ILogin
+	tokenManager       infrainterface.ITokenManager
 }
 
 func NewUserService(
@@ -22,12 +25,24 @@ func NewUserService(
 	idGenerator infrainterface.IUserIdGenerator,
 	tokenGenerator infrainterface.IUserTokenGenerator,
 	activationNotifier infrainterface.IActivationNotifier,
+	loginInfra infrainterface.ILogin,
+	tokenManager infrainterface.ITokenManager,
 ) UserService {
 	return UserService{
 		userRepository:     userRepository,
 		idGenerator:        idGenerator,
 		tokenGenerator:     tokenGenerator,
 		activationNotifier: activationNotifier,
+		loginInfra:         loginInfra,
+		tokenManager:       tokenManager,
+	}
+}
+
+func notValidLoginInfoError() error {
+	return errors.MyError{
+		StatusCode: http.StatusForbidden,
+		Message:    "Check Login Info",
+		ErrorType:  "not_valid_login_info",
 	}
 }
 
@@ -112,4 +127,56 @@ func (service UserService) ReissueOfActivation(email userValues.Email) error {
 		return err
 	}
 	return service.activationNotifier.SendEmail(u, a, "activation Account")
+}
+
+func (service UserService) Login(email userValues.Email, passString userValues.PassString) (string, error) {
+
+	u, err := service.userRepository.FindByEmail(email)
+	if err != nil {
+		return "", err //notValidLoginInfoError()
+	}
+
+	if !u.IsActive {
+		return "", errors.MyError{
+			StatusCode: http.StatusForbidden,
+			Message:    "Should Authorize",
+			ErrorType:  "not_valid_user_info",
+		}
+	}
+
+	hp, err := service.userRepository.GetHashedPassword(u.ID)
+
+	if err != nil {
+		return "", err //notValidLoginInfoError()
+	}
+
+	if !service.loginInfra.CheckPassAndHash(hp, passString) {
+		return "", notValidLoginInfoError()
+	}
+
+	//TODO: ここでjwtInfraを使う
+	token, err := service.tokenManager.GenerateToken(u)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (service UserService) GetUserInfo(userId model.UserID, auth authorization.Authorization) (user.User, error) {
+
+	if auth.UserId != userId {
+		return user.User{}, errors.MyError{
+			StatusCode: http.StatusForbidden,
+			Message:    "invalid user_id",
+			ErrorType:  "not_accessible_this_resource",
+		}
+	}
+
+	u, err := service.userRepository.FindByEmail(auth.Email)
+	if err != nil {
+		return user.User{}, err
+	}
+
+	return u, nil
 }

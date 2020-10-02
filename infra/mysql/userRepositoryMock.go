@@ -4,9 +4,11 @@ import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/user"
+	"UserMockGo/infra/encryption"
 	"UserMockGo/infra/table"
 	"UserMockGo/lib/valueObjects/userValues"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 )
@@ -26,6 +28,13 @@ func NewUserRepositoryMock() infrainterface.IUserRepository {
 		CreatedAt: time.Now().Unix(),
 		UpdatedAt: time.Now().Unix(),
 	})
+	users = append(users, table.User{
+		ID:        3,
+		Email:     "test3@test.com",
+		IsActive:  true,
+		CreatedAt: time.Now().Unix(),
+		UpdatedAt: time.Now().Unix(),
+	})
 	activations := []table.Activation{}
 	activations = append(activations, table.Activation{
 		ID:                       1,
@@ -33,6 +42,11 @@ func NewUserRepositoryMock() infrainterface.IUserRepository {
 		ActivationTokenExpiresAt: 2145884400,
 	})
 	passwords := []table.Password{}
+	testEncryption, _ := encryption.PassEncryption(userValues.PassString(os.Getenv("TEST_PASS")))
+	passwords = append(passwords, table.Password{
+		ID:       3,
+		Password: testEncryption,
+	})
 
 	return UserRepositoryMock{
 		Users:       &users,
@@ -165,4 +179,13 @@ func (repo UserRepositoryMock) ReissueOfActivationTransactional(activation user.
 	*repo.Activations = activations
 
 	return nil
+}
+
+func (repo UserRepositoryMock) GetHashedPassword(id model.UserID) (string, error) {
+	for _, p := range *repo.Passwords {
+		if p.ID == int64(id) {
+			return p.MapToHashedString(), nil
+		}
+	}
+	return "", user.UserPassNotFound("")
 }
