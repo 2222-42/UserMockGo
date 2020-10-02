@@ -3,6 +3,7 @@ package service
 import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
+	"UserMockGo/domain/model/authorization"
 	"UserMockGo/domain/model/errors"
 	"UserMockGo/domain/model/user"
 	"UserMockGo/lib/valueObjects/userValues"
@@ -160,4 +161,22 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 	}
 
 	return token, nil
+}
+
+func (service UserService) GetUserInfo(userId model.UserID, auth authorization.Authorization) (user.User, error) {
+
+	if auth.UserId != userId {
+		return user.User{}, errors.MyError{
+			StatusCode: http.StatusForbidden,
+			Message:    "invalid user_id",
+			ErrorType:  "not_accessible_this_resource",
+		}
+	}
+
+	u, err := service.userRepository.FindByEmail(auth.Email)
+	if err != nil {
+		return user.User{}, err
+	}
+
+	return u, nil
 }
