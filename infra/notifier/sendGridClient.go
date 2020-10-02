@@ -19,7 +19,7 @@ func NewActivationNotifier() infrainterface.IActivationNotifier {
 }
 
 func (notifier sendGridClient) SendEmail(user user.User, activation user.Activation, subjectStr string) error {
-	from := mail.NewEmail("UserMockGo Admin", os.Getenv("fromAddress"))
+	from := mail.NewEmail("UserMockGo Admin", os.Getenv("FROM_ADDRESS"))
 	subject := "[UserMockGo]" + subjectStr
 	to := mail.NewEmail("UserId: "+strconv.Itoa(int(user.ID)), string(user.Email))
 
