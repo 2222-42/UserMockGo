@@ -16,6 +16,7 @@ type UserService struct {
 	tokenGenerator     infrainterface.IUserTokenGenerator
 	activationNotifier infrainterface.IActivationNotifier
 	loginInfra         infrainterface.ILogin
+	tokenManager       infrainterface.ITokenManager
 }
 
 func NewUserService(
@@ -143,5 +144,10 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 	}
 
 	//TODO: ここでjwtInfraを使う
-	return "", nil
+	token, err := service.tokenManager.GenerateToken(u)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
