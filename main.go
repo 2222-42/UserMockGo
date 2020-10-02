@@ -22,7 +22,8 @@ func main() {
 	LoginInfra := encryption.NewLoginInfraMock()
 	tokenManager := jwtManager.NewTokenManagerMock()
 	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, LoginInfra, tokenManager)
-	userHandler := handler.NewUserHandler(userService)
+	authorizationService := service.NewAuthorizationService(tokenManager)
+	userHandler := handler.NewUserHandler(userService, authorizationService)
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
@@ -30,5 +31,6 @@ func main() {
 	e.GET("/user/activate", userHandler.Activate)
 	e.POST("/user/reissue", userHandler.Reissue)
 	e.POST("/user/login", userHandler.Login)
+	e.GET("/users", userHandler.GetUserInfo)
 	e.Logger.Fatal(e.Start(":8080"))
 }

@@ -1,20 +1,24 @@
 package handler
 
 import (
+	"UserMockGo/domain/model"
 	"UserMockGo/domain/service"
 	"UserMockGo/lib/valueObjects/userValues"
 	"fmt"
 	"github.com/labstack/echo"
 	"net/http"
+	"strconv"
 )
 
 type UserHandler struct {
-	userService service.UserService
+	userService         service.UserService
+	authrizationService service.AuthorizationService
 }
 
-func NewUserHandler(userService service.UserService) UserHandler {
+func NewUserHandler(userService service.UserService, authrizationService service.AuthorizationService) UserHandler {
 	return UserHandler{
-		userService: userService,
+		userService:         userService,
+		authrizationService: authrizationService,
 	}
 }
 
@@ -36,6 +40,10 @@ type ReissueParam struct {
 type LoginParams struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type UserParams struct {
+	Id string `json:"id"`
 }
 
 func (handler UserHandler) Create(c echo.Context) error {
@@ -99,4 +107,32 @@ func (handler UserHandler) Login(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, token)
+}
+
+func (handler UserHandler) GetUserInfo(c echo.Context) error {
+
+	body := new(UserParams)
+	if err := c.Bind(body); err != nil {
+		fmt.Println("Request is failed: " + err.Error())
+		return c.JSON(http.StatusBadRequest, "Failed: "+err.Error())
+	}
+
+	authorization, err := handler.authrizationService.GetAuthorization(c.Request().Header.Get("X-Access-Token"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "Failed: "+err.Error())
+	}
+
+	id, err := strconv.ParseInt(body.Id, 10, 64)
+	if err != nil {
+		fmt.Println("parse error in userHandler")
+		return c.JSON(http.StatusBadRequest, "Failed: "+err.Error())
+	}
+
+	userInfo, err := handler.userService.GetUserInfo(model.UserID(id), authorization)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "Failed: "+err.Error())
+	}
+
+	return c.JSON(http.StatusOK, userInfo)
 }
