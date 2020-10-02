@@ -29,6 +29,15 @@ type ActivationParam struct {
 	Token string `json:"token"`
 }
 
+type ReissueParam struct {
+	Email string `json:"email"`
+}
+
+type LoginParams struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func (handler UserHandler) Create(c echo.Context) error {
 	body := new(UserParam)
 	if err := c.Bind(body); err != nil {
@@ -61,10 +70,6 @@ func (handler UserHandler) Activate(c echo.Context) error {
 	return c.JSON(http.StatusOK, body)
 }
 
-type ReissueParam struct {
-	Email string `json:"email"`
-}
-
 func (handler UserHandler) Reissue(c echo.Context) error {
 	body := new(ReissueParam)
 	if err := c.Bind(body); err != nil {
@@ -78,4 +83,20 @@ func (handler UserHandler) Reissue(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, body)
+}
+
+func (handler UserHandler) Login(c echo.Context) error {
+	body := new(LoginParams)
+	if err := c.Bind(body); err != nil {
+		fmt.Println("Request is failed: " + err.Error())
+		return err
+	}
+
+	token, err := handler.userService.Login(userValues.Email(body.Email), userValues.PassString(body.Password))
+	if err != nil {
+		fmt.Println("Login is failed: " + err.Error())
+		return c.JSON(http.StatusBadRequest, "Reissue is failed: "+err.Error())
+	}
+
+	return c.JSON(http.StatusOK, token)
 }

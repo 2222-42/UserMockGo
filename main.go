@@ -27,5 +27,6 @@ func main() {
 	e.POST("/users", userHandler.Create)
 	e.GET("/user/activate", userHandler.Activate)
 	e.POST("/user/reissue", userHandler.Reissue)
+	e.POST("/user/login", userHandler.Login)
 	e.Logger.Fatal(e.Start(":8080"))
 }

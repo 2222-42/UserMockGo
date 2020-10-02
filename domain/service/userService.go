@@ -15,7 +15,7 @@ type UserService struct {
 	idGenerator        infrainterface.IUserIdGenerator
 	tokenGenerator     infrainterface.IUserTokenGenerator
 	activationNotifier infrainterface.IActivationNotifier
-	loginInfra     infrainterface.ILogin
+	loginInfra         infrainterface.ILogin
 }
 
 func NewUserService(
@@ -30,7 +30,15 @@ func NewUserService(
 		idGenerator:        idGenerator,
 		tokenGenerator:     tokenGenerator,
 		activationNotifier: activationNotifier,
-		loginInfra:     loginInfra,
+		loginInfra:         loginInfra,
+	}
+}
+
+func notValidLoginInfoError() error {
+	return errors.MyError{
+		StatusCode: http.StatusForbidden,
+		Message:    "Check User Mail",
+		ErrorType:  "not_valid_login_info",
 	}
 }
 
@@ -117,22 +125,23 @@ func (service UserService) ReissueOfActivation(email userValues.Email) error {
 	return service.activationNotifier.SendEmail(u, a, "activation Account")
 }
 
-func (service UserService) Login(email userValues.Email, passString userValues.PassString) error {
+func (service UserService) Login(email userValues.Email, passString userValues.PassString) (string, error) {
 
 	u, err := service.userRepository.FindByEmail(email)
 	if err != nil {
-		return err
+		return "", notValidLoginInfoError()
 	}
 
 	hp, err := service.userRepository.GetHashedPassword(u.ID)
 
 	if err != nil {
-		return err
+		return "", notValidLoginInfoError()
 	}
 
-	if service.loginInfra.CheckPassAndHash(hp, passString) {
-		return nil
+	if !service.loginInfra.CheckPassAndHash(hp, passString) {
+		return "", notValidLoginInfoError()
 	}
 
-	return nil
+	//TODO: ここでjwtInfraを使う
+	return "", nil
 }
