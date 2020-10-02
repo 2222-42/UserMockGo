@@ -64,7 +64,6 @@ func (manager TokenManager) Parse(tokenString string) (authorization.Authorizati
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims["sub"], claims["email"])
 		id, err := strconv.ParseInt(claims["sub"].(string), 10, 64)
 		if err != nil {
 			return authorization.Authorization{}, err
