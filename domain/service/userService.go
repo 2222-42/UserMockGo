@@ -54,7 +54,7 @@ func (service UserService) CreateUser(email userValues.Email, passString userVal
 		return err
 	}
 
-	return service.activationNotifier.SendEmail(u, a)
+	return service.activationNotifier.SendEmail(u, a, "activation Account")
 }
 
 func (service UserService) ActivateUser(email userValues.Email, token string) error {
