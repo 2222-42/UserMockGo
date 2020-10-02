@@ -83,7 +83,6 @@ func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activat
 
 	activations := []table.Activation{}
 	for _, a := range *repo.Activations {
-		fmt.Printf("%v\n", a)
 		if a.ID != int64(activation.ID) {
 			activations = append(activations, a)
 		}
@@ -150,5 +149,20 @@ func (repo UserRepositoryMock) FindByUserIdAndToken(userId model.UserID, token s
 
 // 既存のactivationを消して作るのをTransactionalに実施する
 func (repo UserRepositoryMock) ReissueOfActivationTransactional(activation user.Activation) error {
+	activations := []table.Activation{}
+	newActivation, err := table.MapFromUserActivationModel(activation)
+	if err != nil {
+		return err
+	}
+
+	for _, a := range *repo.Activations {
+		if a.ID != int64(activation.ID) {
+			activations = append(activations, a)
+		} else {
+			activations = append(activations, newActivation)
+		}
+	}
+	*repo.Activations = activations
+
 	return nil
 }

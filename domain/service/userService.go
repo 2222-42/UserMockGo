@@ -108,5 +108,8 @@ func (service UserService) ReissueOfActivation(email userValues.Email) error {
 	token, expiresAt := service.tokenGenerator.GenerateTokenAndExpiresAt()
 	a := user.NewActivation(u.ID, token, expiresAt)
 
-	return service.userRepository.ReissueOfActivationTransactional(a)
+	if err := service.userRepository.ReissueOfActivationTransactional(a); err != nil {
+		return err
+	}
+	return service.activationNotifier.SendEmail(u, a, "activation Account")
 }

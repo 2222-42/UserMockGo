@@ -21,3 +21,7 @@ failed:
 ```
 curl -XPOST -H "content-type:application/json" localhost:8080/user/reissue --data '{"email": "test3@test.com"}'
 ```
+
+```
+curl -XPOST -H "content-type:application/json" localhost:8080/user/reissue --data '{"email": "satoru.hanada@matsuri-tech.com", "password":"testtesttest", "password_confirmation":"testtesttest"}'
+```
