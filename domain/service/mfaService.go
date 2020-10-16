@@ -21,7 +21,7 @@ func (service MfaService) CheckCode(user user.User, code string) (string, error)
 		return "", err
 	}
 
-	token, err := service.tokenManager.GenerateToken(user)
+	token, err := service.tokenManager.GenerateToken(user, true)
 	if err != nil {
 		return "", err
 	}

@@ -154,7 +154,7 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 		return "", notValidLoginInfoError()
 	}
 
-	token, err := service.tokenManager.GenerateToken(u)
+	token, err := service.tokenManager.GenerateToken(u, false)
 	if err != nil {
 		return "", err
 	}
@@ -163,6 +163,10 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 }
 
 func (service UserService) GetUserInfo(userId model.UserID, auth authorization.Authorization) (user.User, error) {
+
+	if err := auth.RequireSameUser(userId); err != nil {
+		return user.User{}, nil
+	}
 
 	if auth.UserId != userId {
 		return user.User{}, errors.MyError{
