@@ -19,7 +19,7 @@ type UserRepositoryMock struct {
 	Passwords   *[]table.Password
 }
 
-func NewUserRepositoryMock() infrainterface.IUserRepository {
+func NewUserRepositoryMock(testUser table.User, testPass table.Password) infrainterface.IUserRepository {
 	users := []table.User{}
 	users = append(users, table.User{
 		ID:        1,
@@ -35,6 +35,7 @@ func NewUserRepositoryMock() infrainterface.IUserRepository {
 		CreatedAt: time.Now().Unix(),
 		UpdatedAt: time.Now().Unix(),
 	})
+	users = append(users, testUser)
 	activations := []table.Activation{}
 	activations = append(activations, table.Activation{
 		ID:                       1,
@@ -47,6 +48,7 @@ func NewUserRepositoryMock() infrainterface.IUserRepository {
 		ID:       3,
 		Password: hashedPass,
 	})
+	passwords = append(passwords, testPass)
 
 	return UserRepositoryMock{
 		Users:       &users,

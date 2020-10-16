@@ -8,15 +8,31 @@ import (
 	"UserMockGo/infra/mysql"
 	"UserMockGo/infra/notifier"
 	"UserMockGo/infra/randomintgenerator"
+	"UserMockGo/infra/table"
 	"UserMockGo/infra/token"
+	"UserMockGo/lib/valueObjects/userValues"
 	"UserMockGo/web/handler"
 	"github.com/labstack/echo"
 	"net/http"
+	"os"
+	"time"
 )
 
 func main() {
 	e := echo.New()
-	userRepository := mysql.NewUserRepositoryMock()
+	sampleUser := table.User{
+		ID:        123,
+		Email:     os.Getenv("USER_MOCK_GO_USER_EMAIL"),
+		IsActive:  true,
+		CreatedAt: time.Now().Unix(),
+		UpdatedAt: time.Now().Unix(),
+	}
+	hashedPass, _ := bcrypt.HashPassString(userValues.PassString(os.Getenv("USER_MOCK_GO_USER_PASS")))
+	samplePass := table.Password{
+		ID:       123,
+		Password: hashedPass,
+	}
+	userRepository := mysql.NewUserRepositoryMock(sampleUser, samplePass)
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
 	activationNotifier := notifier.NewActivationNotifier()
