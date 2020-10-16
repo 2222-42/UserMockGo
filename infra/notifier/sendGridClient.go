@@ -14,11 +14,11 @@ import (
 type sendGridClient struct {
 }
 
-func NewActivationNotifier() infrainterface.IActivationNotifier {
+func NewActivationNotifier() infrainterface.IEmailNotifier {
 	return sendGridClient{}
 }
 
-func (notifier sendGridClient) SendEmail(user user.User, activation user.Activation, subjectStr string) error {
+func (notifier sendGridClient) SendActivationEmail(user user.User, activation user.Activation, subjectStr string) error {
 	from := mail.NewEmail("UserMockGo Admin", os.Getenv("FROM_ADDRESS"))
 	subject := "[UserMockGo]" + subjectStr
 	to := mail.NewEmail("UserId: "+strconv.Itoa(int(user.ID)), string(user.Email))
@@ -42,6 +42,11 @@ func (notifier sendGridClient) SendEmail(user user.User, activation user.Activat
 		fmt.Println(response.Body)
 		fmt.Println(response.Headers)
 	}
+
+	return nil
+}
+
+func (notifier sendGridClient) SendCode(user user.User, code string) error {
 
 	return nil
 }

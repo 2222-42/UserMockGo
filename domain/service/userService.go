@@ -12,29 +12,29 @@ import (
 )
 
 type UserService struct {
-	userRepository     infrainterface.IUserRepository
-	idGenerator        infrainterface.IUserIdGenerator
-	tokenGenerator     infrainterface.IUserTokenGenerator
-	activationNotifier infrainterface.IActivationNotifier
-	loginInfra         infrainterface.ILogin
-	tokenManager       infrainterface.ITokenManager
+	userRepository infrainterface.IUserRepository
+	idGenerator    infrainterface.IUserIdGenerator
+	tokenGenerator infrainterface.IUserTokenGenerator
+	emailNotifier  infrainterface.IEmailNotifier
+	loginInfra     infrainterface.ILogin
+	tokenManager   infrainterface.ITokenManager
 }
 
 func NewUserService(
 	userRepository infrainterface.IUserRepository,
 	idGenerator infrainterface.IUserIdGenerator,
 	tokenGenerator infrainterface.IUserTokenGenerator,
-	activationNotifier infrainterface.IActivationNotifier,
+	activationNotifier infrainterface.IEmailNotifier,
 	loginInfra infrainterface.ILogin,
 	tokenManager infrainterface.ITokenManager,
 ) UserService {
 	return UserService{
-		userRepository:     userRepository,
-		idGenerator:        idGenerator,
-		tokenGenerator:     tokenGenerator,
-		activationNotifier: activationNotifier,
-		loginInfra:         loginInfra,
-		tokenManager:       tokenManager,
+		userRepository: userRepository,
+		idGenerator:    idGenerator,
+		tokenGenerator: tokenGenerator,
+		emailNotifier:  activationNotifier,
+		loginInfra:     loginInfra,
+		tokenManager:   tokenManager,
 	}
 }
 
@@ -69,7 +69,7 @@ func (service UserService) CreateUser(email userValues.Email, passString userVal
 		return err
 	}
 
-	return service.activationNotifier.SendEmail(u, a, "activation Account")
+	return service.emailNotifier.SendActivationEmail(u, a, "activation Account")
 }
 
 func (service UserService) ActivateUser(email userValues.Email, token string) error {
@@ -126,7 +126,7 @@ func (service UserService) ReissueOfActivation(email userValues.Email) error {
 	if err := service.userRepository.ReissueOfActivationTransactional(a); err != nil {
 		return err
 	}
-	return service.activationNotifier.SendEmail(u, a, "activation Account")
+	return service.emailNotifier.SendActivationEmail(u, a, "activation Account")
 }
 
 func (service UserService) Login(email userValues.Email, passString userValues.PassString) (string, error) {
