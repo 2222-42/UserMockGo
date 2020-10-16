@@ -162,10 +162,10 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 		return "", err
 	}
 
-	code := service.mfaManager.GenerateCode(u)
-	if err := service.emailNotifier.SendCode(u, code); err != nil {
-		return "", err
-	}
+	//code := service.mfaManager.GenerateCode(u)
+	//if err := service.emailNotifier.SendCode(u, code); err != nil {
+	//	return "", err
+	//}
 
 	return token, nil
 }
