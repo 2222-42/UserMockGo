@@ -2,6 +2,7 @@ package mfa
 
 import (
 	"UserMockGo/domain/infrainterface"
+	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/errors"
 	"UserMockGo/domain/model/user"
 	"net/http"
@@ -10,7 +11,7 @@ import (
 type MFAManagerMock struct {
 }
 
-func NewActivationNotifier() infrainterface.IMfaManager {
+func NewMfaManagerMock() infrainterface.IMfaManager {
 	return MFAManagerMock{}
 }
 
@@ -20,8 +21,8 @@ func (manager MFAManagerMock) GenerateCode(user user.User) string {
 	return testCode
 }
 
-func (manager MFAManagerMock) RequireValidPairOfUserAndCode(user user.User, code string) error {
-	userCode, err := getCode(user)
+func (manager MFAManagerMock) RequireValidPairOfUserAndCode(userId model.UserID, code string) error {
+	userCode, err := getCode(userId)
 	if err != nil {
 		return errors.MyError{
 			StatusCode: http.StatusBadRequest,
@@ -40,6 +41,13 @@ func (manager MFAManagerMock) RequireValidPairOfUserAndCode(user user.User, code
 	return nil
 }
 
-func getCode(user user.User) (string, error) {
+func getCode(userId model.UserID) (string, error) {
+	if int(userId) == 0 {
+		return "", errors.MyError{
+			StatusCode: http.StatusBadRequest,
+			Message:    "check your email, password and code",
+			ErrorType:  "invalid_login_info",
+		}
+	}
 	return testCode, nil
 }

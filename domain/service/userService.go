@@ -18,6 +18,7 @@ type UserService struct {
 	emailNotifier  infrainterface.IEmailNotifier
 	loginInfra     infrainterface.ILogin
 	tokenManager   infrainterface.ITokenManager
+	mfaManager     infrainterface.IMfaManager
 }
 
 func NewUserService(
@@ -27,6 +28,7 @@ func NewUserService(
 	activationNotifier infrainterface.IEmailNotifier,
 	loginInfra infrainterface.ILogin,
 	tokenManager infrainterface.ITokenManager,
+	mfaManager infrainterface.IMfaManager,
 ) UserService {
 	return UserService{
 		userRepository: userRepository,
@@ -35,6 +37,7 @@ func NewUserService(
 		emailNotifier:  activationNotifier,
 		loginInfra:     loginInfra,
 		tokenManager:   tokenManager,
+		mfaManager:     mfaManager,
 	}
 }
 
@@ -154,8 +157,13 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 		return "", notValidLoginInfoError()
 	}
 
-	token, err := service.tokenManager.GenerateToken(u)
+	token, err := service.tokenManager.GenerateToken(u, false)
 	if err != nil {
+		return "", err
+	}
+
+	code := service.mfaManager.GenerateCode(u)
+	if err := service.emailNotifier.SendCode(u, code); err != nil {
 		return "", err
 	}
 
@@ -163,6 +171,10 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 }
 
 func (service UserService) GetUserInfo(userId model.UserID, auth authorization.Authorization) (user.User, error) {
+
+	if err := auth.RequireSameUser(userId); err != nil {
+		return user.User{}, err
+	}
 
 	if auth.UserId != userId {
 		return user.User{}, errors.MyError{
