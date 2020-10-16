@@ -2,7 +2,7 @@ package main
 
 import (
 	"UserMockGo/domain/service"
-	"UserMockGo/infra/encryption"
+	"UserMockGo/infra/bcrypt"
 	"UserMockGo/infra/jwtManager"
 	"UserMockGo/infra/mysql"
 	"UserMockGo/infra/notifier"
@@ -19,7 +19,7 @@ func main() {
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
 	activationNotifier := notifier.NewActivationNotifier()
-	LoginInfra := encryption.NewLoginInfraMock()
+	LoginInfra := bcrypt.NewLoginInfraMock()
 	tokenManager := jwtManager.NewTokenManagerMock()
 	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, LoginInfra, tokenManager)
 	authorizationService := service.NewAuthorizationService(tokenManager)
