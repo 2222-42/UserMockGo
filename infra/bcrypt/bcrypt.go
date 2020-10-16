@@ -1,4 +1,4 @@
-package encryption
+package bcrypt
 
 import (
 	"UserMockGo/domain/infrainterface"
@@ -6,7 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func PassEncryption(pass userValues.PassString) (string, error) {
+func HashPassString(pass userValues.PassString) (string, error) {
 	hp, err := bcrypt.GenerateFromPassword([]byte(string(pass)), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
