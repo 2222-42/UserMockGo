@@ -13,6 +13,20 @@ type MfaService struct {
 	userRepository infrainterface.IUserRepository
 }
 
+func NewMfaService(
+	userRepository infrainterface.IUserRepository,
+	activationNotifier infrainterface.IEmailNotifier,
+	tokenManager infrainterface.ITokenManager,
+	mfaManager infrainterface.IMfaManager,
+) MfaService {
+	return MfaService{
+		mfaManager:     mfaManager,
+		userRepository: userRepository,
+		emailNotifier:  activationNotifier,
+		tokenManager:   tokenManager,
+	}
+}
+
 func (service MfaService) SendCode(user user.User) error {
 	code := service.mfaManager.GenerateCode(user)
 	return service.emailNotifier.SendCode(user, code)

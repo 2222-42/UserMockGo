@@ -11,7 +11,7 @@ import (
 type MFAManagerMock struct {
 }
 
-func NewActivationNotifier() infrainterface.IMfaManager {
+func NewMfaManagerMock() infrainterface.IMfaManager {
 	return MFAManagerMock{}
 }
 

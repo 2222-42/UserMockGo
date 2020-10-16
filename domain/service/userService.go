@@ -165,7 +165,7 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 func (service UserService) GetUserInfo(userId model.UserID, auth authorization.Authorization) (user.User, error) {
 
 	if err := auth.RequireSameUser(userId); err != nil {
-		return user.User{}, nil
+		return user.User{}, err
 	}
 
 	if auth.UserId != userId {
