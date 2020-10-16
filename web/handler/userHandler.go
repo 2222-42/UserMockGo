@@ -11,14 +11,14 @@ import (
 )
 
 type UserHandler struct {
-	userService         service.UserService
-	authrizationService service.AuthorizationService
+	userService          service.UserService
+	authorizationService service.AuthorizationService
 }
 
 func NewUserHandler(userService service.UserService, authrizationService service.AuthorizationService) UserHandler {
 	return UserHandler{
-		userService:         userService,
-		authrizationService: authrizationService,
+		userService:          userService,
+		authorizationService: authrizationService,
 	}
 }
 
@@ -117,7 +117,7 @@ func (handler UserHandler) GetUserInfo(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Failed: "+err.Error())
 	}
 
-	authorization, err := handler.authrizationService.GetAuthorization(c.Request().Header.Get("X-Access-Token"))
+	authorization, err := handler.authorizationService.GetAuthorization(c.Request().Header.Get("X-Access-Token"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, "Failed: "+err.Error())
 	}

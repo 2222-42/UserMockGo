@@ -19,7 +19,7 @@ type UserRepositoryMock struct {
 	Passwords   *[]table.Password
 }
 
-func NewUserRepositoryMock() infrainterface.IUserRepository {
+func NewUserRepositoryMock(testUser table.User, testPass table.Password) infrainterface.IUserRepository {
 	users := []table.User{}
 	users = append(users, table.User{
 		ID:        1,
@@ -35,6 +35,7 @@ func NewUserRepositoryMock() infrainterface.IUserRepository {
 		CreatedAt: time.Now().Unix(),
 		UpdatedAt: time.Now().Unix(),
 	})
+	users = append(users, testUser)
 	activations := []table.Activation{}
 	activations = append(activations, table.Activation{
 		ID:                       1,
@@ -47,6 +48,7 @@ func NewUserRepositoryMock() infrainterface.IUserRepository {
 		ID:       3,
 		Password: hashedPass,
 	})
+	passwords = append(passwords, testPass)
 
 	return UserRepositoryMock{
 		Users:       &users,
@@ -131,6 +133,34 @@ func (repo UserRepositoryMock) FindByEmail(email userValues.Email) (user.User, e
 			}
 		}
 		return user.User{}, user.UserNotFound(string(email))
+	}
+}
+
+func (repo UserRepositoryMock) FindById(id model.UserID) (user.User, error) {
+	switch id {
+	case 2:
+		return user.User{
+			ID:        2,
+			Email:     "test2@test.com",
+			IsActive:  false,
+			CreatedAt: time.Now().Unix() - 60*30,
+			UpdatedAt: time.Now().Unix() - 60*30,
+		}, nil
+	case 3:
+		return user.User{
+			ID:        3,
+			Email:     "test3@test.com",
+			IsActive:  true,
+			CreatedAt: time.Now().Unix() - 60*30,
+			UpdatedAt: time.Now().Unix() - 60*30,
+		}, nil
+	default:
+		for _, u := range *repo.Users {
+			if u.ID == int64(id) {
+				return u.MapToUserModel()
+			}
+		}
+		return user.User{}, user.UserNotFound(string(id))
 	}
 }
 

@@ -12,29 +12,32 @@ import (
 )
 
 type UserService struct {
-	userRepository     infrainterface.IUserRepository
-	idGenerator        infrainterface.IUserIdGenerator
-	tokenGenerator     infrainterface.IUserTokenGenerator
-	activationNotifier infrainterface.IActivationNotifier
-	loginInfra         infrainterface.ILogin
-	tokenManager       infrainterface.ITokenManager
+	userRepository infrainterface.IUserRepository
+	idGenerator    infrainterface.IUserIdGenerator
+	tokenGenerator infrainterface.IUserTokenGenerator
+	emailNotifier  infrainterface.IEmailNotifier
+	loginInfra     infrainterface.ILogin
+	tokenManager   infrainterface.ITokenManager
+	mfaManager     infrainterface.IMfaManager
 }
 
 func NewUserService(
 	userRepository infrainterface.IUserRepository,
 	idGenerator infrainterface.IUserIdGenerator,
 	tokenGenerator infrainterface.IUserTokenGenerator,
-	activationNotifier infrainterface.IActivationNotifier,
+	activationNotifier infrainterface.IEmailNotifier,
 	loginInfra infrainterface.ILogin,
 	tokenManager infrainterface.ITokenManager,
+	mfaManager infrainterface.IMfaManager,
 ) UserService {
 	return UserService{
-		userRepository:     userRepository,
-		idGenerator:        idGenerator,
-		tokenGenerator:     tokenGenerator,
-		activationNotifier: activationNotifier,
-		loginInfra:         loginInfra,
-		tokenManager:       tokenManager,
+		userRepository: userRepository,
+		idGenerator:    idGenerator,
+		tokenGenerator: tokenGenerator,
+		emailNotifier:  activationNotifier,
+		loginInfra:     loginInfra,
+		tokenManager:   tokenManager,
+		mfaManager:     mfaManager,
 	}
 }
 
@@ -69,7 +72,7 @@ func (service UserService) CreateUser(email userValues.Email, passString userVal
 		return err
 	}
 
-	return service.activationNotifier.SendEmail(u, a, "activation Account")
+	return service.emailNotifier.SendActivationEmail(u, a, "activation Account")
 }
 
 func (service UserService) ActivateUser(email userValues.Email, token string) error {
@@ -126,7 +129,7 @@ func (service UserService) ReissueOfActivation(email userValues.Email) error {
 	if err := service.userRepository.ReissueOfActivationTransactional(a); err != nil {
 		return err
 	}
-	return service.activationNotifier.SendEmail(u, a, "activation Account")
+	return service.emailNotifier.SendActivationEmail(u, a, "activation Account")
 }
 
 func (service UserService) Login(email userValues.Email, passString userValues.PassString) (string, error) {
@@ -154,9 +157,13 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 		return "", notValidLoginInfoError()
 	}
 
-	//TODO: ここでjwtInfraを使う
-	token, err := service.tokenManager.GenerateToken(u)
+	token, err := service.tokenManager.GenerateToken(u, false)
 	if err != nil {
+		return "", err
+	}
+
+	code := service.mfaManager.GenerateCode(u)
+	if err := service.emailNotifier.SendCode(u, code); err != nil {
 		return "", err
 	}
 
@@ -164,6 +171,10 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 }
 
 func (service UserService) GetUserInfo(userId model.UserID, auth authorization.Authorization) (user.User, error) {
+
+	if err := auth.RequireSameUser(userId); err != nil {
+		return user.User{}, err
+	}
 
 	if auth.UserId != userId {
 		return user.User{}, errors.MyError{
