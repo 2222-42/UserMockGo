@@ -106,7 +106,11 @@ func (handler UserHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Login is failed: "+err.Error())
 	}
 
-	return c.JSON(http.StatusOK, token)
+	response := map[string]interface{}{
+		"session_token": token,
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
 
 func (handler UserHandler) GetUserInfo(c echo.Context) error {

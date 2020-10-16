@@ -2,7 +2,7 @@ package table
 
 import (
 	"UserMockGo/domain/model/user"
-	"UserMockGo/infra/bcrypt"
+	"UserMockGo/infra/myBcryption"
 )
 
 type Password struct {
@@ -11,7 +11,7 @@ type Password struct {
 }
 
 func MapFromUserPasswordModel(password user.Password) (Password, error) {
-	hp, err := bcrypt.HashPassString(password.Password)
+	hp, err := myBcryption.HashPassString(password.Password)
 	if err != nil {
 		return Password{}, err
 	}
