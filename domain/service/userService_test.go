@@ -41,8 +41,10 @@ func TestUserService_LoginSuccess(t *testing.T) {
 	}
 
 	if code == "" {
-		t.Error("login failed")
+		t.Error("should get code")
 	}
+
+	//TODO: 出力されたコードについては、特定のユーザー情報のアクセスのためのJWTの発行のための情報になっていることが期待される。
 }
 
 func TestUserService_LoginFail(t *testing.T) {
@@ -67,11 +69,12 @@ func TestUserService_LoginFail(t *testing.T) {
 	tokenManager := jwtManager.NewTokenManagerMock()
 	userService := NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, loginInfra, tokenManager, mfaManager)
 	code, err := userService.Login("test@test.com", "testtesttesttesttest")
+
 	if err == nil {
 		t.Error("should succeed", err)
 	}
 
 	if code != "" {
-		t.Error("should not get code")
+		t.Error("should get code")
 	}
 }
