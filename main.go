@@ -39,7 +39,8 @@ func main() {
 	LoginInfra := bcrypt.NewLoginInfraMock()
 	MfaManager := mfa.NewMfaManagerMock()
 	tokenManager := jwtManager.NewTokenManagerMock()
-	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, LoginInfra, tokenManager)
+	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, LoginInfra, tokenManager,
+		MfaManager)
 	authorizationService := service.NewAuthorizationService(tokenManager)
 	mfaService := service.NewMfaService(userRepository, activationNotifier, tokenManager, MfaManager)
 	userHandler := handler.NewUserHandler(userService, authorizationService)
