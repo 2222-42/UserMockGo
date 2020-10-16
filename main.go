@@ -4,6 +4,7 @@ import (
 	"UserMockGo/domain/service"
 	"UserMockGo/infra/bcrypt"
 	"UserMockGo/infra/jwtManager"
+	"UserMockGo/infra/mfa"
 	"UserMockGo/infra/mysql"
 	"UserMockGo/infra/notifier"
 	"UserMockGo/infra/randomintgenerator"
@@ -20,10 +21,13 @@ func main() {
 	userTokenGenerator := token.UserTokenGeneratorMock{}
 	activationNotifier := notifier.NewActivationNotifier()
 	LoginInfra := bcrypt.NewLoginInfraMock()
+	MfaManager := mfa.NewMfaManagerMock()
 	tokenManager := jwtManager.NewTokenManagerMock()
 	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, LoginInfra, tokenManager)
 	authorizationService := service.NewAuthorizationService(tokenManager)
+	mfaService := service.NewMfaService(userRepository, activationNotifier, tokenManager, MfaManager)
 	userHandler := handler.NewUserHandler(userService, authorizationService)
+	mfaHandler := handler.NewMfaHandler(mfaService, authorizationService)
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
@@ -31,6 +35,7 @@ func main() {
 	e.GET("/user/activate", userHandler.Activate)
 	e.POST("/user/reissue", userHandler.Reissue)
 	e.POST("/user/login", userHandler.Login)
+	e.POST("/user/mfa", mfaHandler.MFAuthenticate)
 	e.GET("/users", userHandler.GetUserInfo)
 	e.Logger.Fatal(e.Start(":8080"))
 }

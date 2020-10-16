@@ -32,6 +32,12 @@ curl -XPOST -H "content-type:application/json" localhost:8080/user/reissue --dat
 curl -XPOST -H "content-type:application/json" localhost:8080/user/login --data '{"email": "test3@test.com", "password":"testtesttest"}'
 ```
 
+### MFA
+
+```
+curl -XPOST -H "content-type:application/json" localhost:8080/user/login --data '{"email": "test3@test.com", "password":"testtesttest"}'
+```
+
 ### GetSelfInfo
 
 no header
