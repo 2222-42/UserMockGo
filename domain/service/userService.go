@@ -154,7 +154,6 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 		return "", notValidLoginInfoError()
 	}
 
-	//TODO: ここでjwtInfraを使う
 	token, err := service.tokenManager.GenerateToken(u)
 	if err != nil {
 		return "", err
