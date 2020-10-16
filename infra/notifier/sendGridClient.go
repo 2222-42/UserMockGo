@@ -37,6 +37,7 @@ func (notifier sendGridClient) SendActivationEmail(user user.User, activation us
 	response, err := client.Send(message)
 	if err != nil {
 		log.Println(err)
+		return err
 	} else {
 		fmt.Println(response.StatusCode)
 		fmt.Println(response.Body)
@@ -47,6 +48,27 @@ func (notifier sendGridClient) SendActivationEmail(user user.User, activation us
 }
 
 func (notifier sendGridClient) SendCode(user user.User, code string) error {
+	from := mail.NewEmail("UserMockGo Admin", os.Getenv("FROM_ADDRESS"))
+	subject := "[UserMockGo]" + "activation code"
+	to := mail.NewEmail("UserId: "+strconv.Itoa(int(user.ID)), string(user.Email))
 
+	plainTextContent := "UserMockGoにログインしていただきありがとうございます。\n" +
+		"認証コードは以下の通りです。\n"
+	htmlContent := "<p>UserMockGoにログインしていただきありがとうございます。</p>" +
+		"<p>以認証コードは以下の通りです。</p>" +
+		"<p>認証コード: " + code +
+		"</p>"
+	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+
+	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	response, err := client.Send(message)
+	if err != nil {
+		log.Println(err)
+		return err
+	} else {
+		fmt.Println(response.StatusCode)
+		fmt.Println(response.Body)
+		fmt.Println(response.Headers)
+	}
 	return nil
 }
