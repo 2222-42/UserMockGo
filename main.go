@@ -2,9 +2,9 @@ package main
 
 import (
 	"UserMockGo/domain/service"
-	"UserMockGo/infra/bcrypt"
 	"UserMockGo/infra/jwtManager"
 	"UserMockGo/infra/mfa"
+	"UserMockGo/infra/myBcryption"
 	"UserMockGo/infra/mysql"
 	"UserMockGo/infra/notifier"
 	"UserMockGo/infra/randomintgenerator"
@@ -27,7 +27,7 @@ func main() {
 		CreatedAt: time.Now().Unix(),
 		UpdatedAt: time.Now().Unix(),
 	}
-	hashedPass, _ := bcrypt.HashPassString(userValues.PassString(os.Getenv("USER_MOCK_GO_USER_PASS")))
+	hashedPass, _ := myBcryption.HashPassString(userValues.PassString(os.Getenv("USER_MOCK_GO_USER_PASS")))
 	samplePass := table.Password{
 		ID:       123,
 		Password: hashedPass,
@@ -36,15 +36,17 @@ func main() {
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
 	activationNotifier := notifier.NewActivationNotifier()
-	LoginInfra := bcrypt.NewLoginInfraMock()
-	MfaManager := mfa.NewMfaManagerMock()
+	loginInfra := myBcryption.NewLoginInfraMock()
+	mfaManager := mfa.NewMfaManagerMock()
 	tokenManager := jwtManager.NewTokenManagerMock()
-	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, LoginInfra, tokenManager,
-		MfaManager)
+	oneTimeAccessInfoRepo := mysql.NewOneTimeAccessInfoRepositoryMock()
+	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, loginInfra, tokenManager,
+		mfaManager, oneTimeAccessInfoRepo)
+	oneTImeAccessInfoService := service.NewOneTimeAccessInfoService(oneTimeAccessInfoRepo, mfaManager, tokenManager, userRepository)
 	authorizationService := service.NewAuthorizationService(tokenManager)
-	mfaService := service.NewMfaService(userRepository, activationNotifier, tokenManager, MfaManager)
+	mfaService := service.NewMfaService(activationNotifier, mfaManager)
 	userHandler := handler.NewUserHandler(userService, authorizationService)
-	mfaHandler := handler.NewMfaHandler(mfaService, authorizationService)
+	mfaHandler := handler.NewMfaHandler(mfaService, authorizationService, oneTImeAccessInfoService)
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})

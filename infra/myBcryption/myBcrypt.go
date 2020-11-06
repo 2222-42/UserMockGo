@@ -1,4 +1,4 @@
-package bcrypt
+package myBcryption
 
 import (
 	"UserMockGo/domain/infrainterface"
