@@ -1,4 +1,4 @@
-package authorization
+package authorizationModel
 
 import (
 	"UserMockGo/domain/model"

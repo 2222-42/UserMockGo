@@ -4,7 +4,7 @@ import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
 	"UserMockGo/domain/model/errors"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 	"net/http"
 )
 
@@ -17,7 +17,7 @@ func NewMfaManagerMock() infrainterface.IMfaManager {
 
 const testCode = "123456"
 
-func (manager MFAManagerMock) GenerateCode(user user.User) string {
+func (manager MFAManagerMock) GenerateCode(user userModel.User) string {
 	return testCode
 }
 

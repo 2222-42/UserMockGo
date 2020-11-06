@@ -3,9 +3,9 @@ package jwtManager
 import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
-	"UserMockGo/domain/model/authorization"
+	"UserMockGo/domain/model/authorizationModel"
 	"UserMockGo/domain/model/errors"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 	"UserMockGo/lib/valueObjects/userValues"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
@@ -22,7 +22,7 @@ func NewTokenManagerMock() infrainterface.ITokenManager {
 	return TokenManager{}
 }
 
-func (manager TokenManager) GenerateToken(u user.User) (string, error) {
+func (manager TokenManager) GenerateToken(u userModel.User) (string, error) {
 
 	// TODO: HS256を使わなくする
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -40,9 +40,9 @@ func (manager TokenManager) GenerateToken(u user.User) (string, error) {
 	return tokenString, err
 }
 
-func (manager TokenManager) Parse(tokenString string) (authorization.Authorization, error) {
+func (manager TokenManager) Parse(tokenString string) (authorizationModel.Authorization, error) {
 	if tokenString == "" {
-		return authorization.Authorization{}, errors.MyError{
+		return authorizationModel.Authorization{}, errors.MyError{
 			StatusCode: http.StatusForbidden,
 			Message:    "no token",
 			ErrorType:  "invalid_token",
@@ -60,21 +60,21 @@ func (manager TokenManager) Parse(tokenString string) (authorization.Authorizati
 	})
 
 	if err != nil {
-		return authorization.Authorization{}, err
+		return authorizationModel.Authorization{}, err
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		id, err := strconv.ParseInt(claims["sub"].(string), 10, 64)
 		if err != nil {
-			return authorization.Authorization{}, err
+			return authorizationModel.Authorization{}, err
 		}
 
-		return authorization.Authorization{
+		return authorizationModel.Authorization{
 			UserId: model.UserID(id),
 			Email:  userValues.Email(claims["email"].(string)),
 		}, nil
 	} else {
 		fmt.Println(err)
-		return authorization.Authorization{}, err
+		return authorizationModel.Authorization{}, err
 	}
 }

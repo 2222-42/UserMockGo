@@ -1,8 +1,8 @@
 package infrainterface
 
-import "UserMockGo/domain/model/user"
+import "UserMockGo/domain/model/userModel"
 
 type IEmailNotifier interface {
-	SendActivationEmail(user user.User, activation user.Activation, subjectStr string) error
-	SendCode(user user.User, code string) error
+	SendActivationEmail(user userModel.User, activation userModel.Activation, subjectStr string) error
+	SendCode(user userModel.User, code string) error
 }

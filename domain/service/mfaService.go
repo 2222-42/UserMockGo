@@ -2,7 +2,7 @@ package service
 
 import (
 	"UserMockGo/domain/infrainterface"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 )
 
 type MfaService struct {
@@ -20,7 +20,7 @@ func NewMfaService(
 	}
 }
 
-func (service MfaService) SendCode(user user.User) error {
+func (service MfaService) SendCode(user userModel.User) error {
 	code := service.mfaManager.GenerateCode(user)
 	return service.emailNotifier.SendCode(user, code)
 }
