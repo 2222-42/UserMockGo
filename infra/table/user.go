@@ -16,7 +16,7 @@ type User struct {
 
 func MapFromUserModel(user user.User) (User, error) {
 	return User{
-		ID:        int64(user.ID),
+		ID:        user.ID.ConvertUserIdToInt64(),
 		Email:     string(user.Email),
 		IsActive:  user.IsActive,
 		CreatedAt: user.CreatedAt,

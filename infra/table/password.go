@@ -17,7 +17,7 @@ func MapFromUserPasswordModel(password user.Password) (Password, error) {
 	}
 
 	return Password{
-		ID:       int64(password.ID),
+		ID:       password.ID.ConvertUserIdToInt64(),
 		Password: hp,
 	}, nil
 }
