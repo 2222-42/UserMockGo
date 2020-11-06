@@ -34,7 +34,9 @@ func TestUserService_LoginSuccess(t *testing.T) {
 	loginInfra := myBcryption.NewLoginInfraMock()
 	mfaManager := mfa.NewMfaManagerMock()
 	tokenManager := jwtManager.NewTokenManagerMock()
-	userService := NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, loginInfra, tokenManager, mfaManager)
+	oneTimeAccessInfoRepo := mysql.NewOneTimeAccessInfoRepositoryMock()
+
+	userService := NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, loginInfra, tokenManager, mfaManager, oneTimeAccessInfoRepo)
 	code, err := userService.Login("test@test.com", "testtesttesttest")
 	if err != nil {
 		t.Error("failed", err)
@@ -44,7 +46,15 @@ func TestUserService_LoginSuccess(t *testing.T) {
 		t.Error("should get code")
 	}
 
-	//TODO: 出力されたコードについては、特定のユーザー情報のアクセスのためのJWTの発行のための情報になっていることが期待される。
+	oneTimeService := NewOneTimeAccessInfoService(oneTimeAccessInfoRepo, mfaManager, tokenManager, userRepository)
+	accessToken, err := oneTimeService.CheckWithMfaAndOneTimeCode(code, "123456")
+	if err != nil {
+		t.Error("failed", err)
+	}
+
+	if accessToken == "" {
+		t.Error("should get token")
+	}
 }
 
 func TestUserService_LoginFail(t *testing.T) {
@@ -67,7 +77,8 @@ func TestUserService_LoginFail(t *testing.T) {
 	loginInfra := myBcryption.NewLoginInfraMock()
 	mfaManager := mfa.NewMfaManagerMock()
 	tokenManager := jwtManager.NewTokenManagerMock()
-	userService := NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, loginInfra, tokenManager, mfaManager)
+	oneTimeAccessInfoRepo := mysql.NewOneTimeAccessInfoRepositoryMock()
+	userService := NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, loginInfra, tokenManager, mfaManager, oneTimeAccessInfoRepo)
 	code, err := userService.Login("test@test.com", "testtesttesttesttest")
 
 	if err == nil {
