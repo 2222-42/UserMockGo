@@ -26,7 +26,7 @@ func (manager MFAManagerMock) RequireValidPairOfUserAndCode(userId model.UserID,
 	if err != nil {
 		return errors.MyError{
 			StatusCode: http.StatusBadRequest,
-			Message:    "check your email, password and code",
+			Message:    "check your login info",
 			ErrorType:  "invalid_login_info",
 		}
 	}
@@ -34,10 +34,11 @@ func (manager MFAManagerMock) RequireValidPairOfUserAndCode(userId model.UserID,
 	if code != userCode {
 		return errors.MyError{
 			StatusCode: http.StatusBadRequest,
-			Message:    "check your email, password and code",
-			ErrorType:  "invalid_login_info",
+			Message:    "check your code",
+			ErrorType:  "invalid_mfa_info",
 		}
 	}
+
 	return nil
 }
 
@@ -45,8 +46,8 @@ func getCode(userId model.UserID) (string, error) {
 	if int(userId) == 0 {
 		return "", errors.MyError{
 			StatusCode: http.StatusBadRequest,
-			Message:    "check your email, password and code",
-			ErrorType:  "invalid_login_info",
+			Message:    "check your code",
+			ErrorType:  "invalid_mfa_info",
 		}
 	}
 	return testCode, nil
