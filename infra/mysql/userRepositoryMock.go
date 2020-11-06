@@ -8,7 +8,6 @@ import (
 	"UserMockGo/infra/table"
 	"UserMockGo/lib/valueObjects/userValues"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 )
@@ -19,7 +18,7 @@ type UserRepositoryMock struct {
 	Passwords   *[]table.Password
 }
 
-func NewUserRepositoryMock(testUser table.User, testPass table.Password) infrainterface.IUserRepository {
+func NewUserRepositoryMock() infrainterface.IUserRepository {
 	users := []table.User{}
 	users = append(users, table.User{
 		ID:        1,
@@ -35,7 +34,7 @@ func NewUserRepositoryMock(testUser table.User, testPass table.Password) infrain
 		CreatedAt: time.Now().Unix(),
 		UpdatedAt: time.Now().Unix(),
 	})
-	users = append(users, testUser)
+
 	activations := []table.Activation{}
 	activations = append(activations, table.Activation{
 		ID:                       1,
@@ -43,12 +42,11 @@ func NewUserRepositoryMock(testUser table.User, testPass table.Password) infrain
 		ActivationTokenExpiresAt: 2145884400,
 	})
 	passwords := []table.Password{}
-	hashedPass, _ := myBcryption.HashPassString(userValues.PassString(os.Getenv("TEST_PASS")))
+	hashedPass, _ := myBcryption.HashPassString(userValues.PassString("test123456"))
 	passwords = append(passwords, table.Password{
 		ID:       3,
 		Password: hashedPass,
 	})
-	passwords = append(passwords, testPass)
 
 	return UserRepositoryMock{
 		Users:       &users,
