@@ -12,13 +12,14 @@ import (
 )
 
 type UserService struct {
-	userRepository infrainterface.IUserRepository
-	idGenerator    infrainterface.IUserIdGenerator
-	tokenGenerator infrainterface.IUserTokenGenerator
-	emailNotifier  infrainterface.IEmailNotifier
-	loginInfra     infrainterface.ILogin
-	tokenManager   infrainterface.ITokenManager
-	mfaManager     infrainterface.IMfaManager
+	userRepository       infrainterface.IUserRepository
+	idGenerator          infrainterface.IUserIdGenerator
+	tokenGenerator       infrainterface.IUserTokenGenerator
+	emailNotifier        infrainterface.IEmailNotifier
+	loginInfra           infrainterface.ILogin
+	tokenManager         infrainterface.ITokenManager
+	mfaManager           infrainterface.IMfaManager
+	oneTimeAccessManager infrainterface.IOneTimeAccessInfoRepository
 }
 
 func NewUserService(
@@ -29,15 +30,17 @@ func NewUserService(
 	loginInfra infrainterface.ILogin,
 	tokenManager infrainterface.ITokenManager,
 	mfaManager infrainterface.IMfaManager,
+	oneTimeAccessManager infrainterface.IOneTimeAccessInfoRepository,
 ) UserService {
 	return UserService{
-		userRepository: userRepository,
-		idGenerator:    idGenerator,
-		tokenGenerator: tokenGenerator,
-		emailNotifier:  activationNotifier,
-		loginInfra:     loginInfra,
-		tokenManager:   tokenManager,
-		mfaManager:     mfaManager,
+		userRepository:       userRepository,
+		idGenerator:          idGenerator,
+		tokenGenerator:       tokenGenerator,
+		emailNotifier:        activationNotifier,
+		loginInfra:           loginInfra,
+		tokenManager:         tokenManager,
+		mfaManager:           mfaManager,
+		oneTimeAccessManager: oneTimeAccessManager,
 	}
 }
 
@@ -132,6 +135,7 @@ func (service UserService) ReissueOfActivation(email userValues.Email) error {
 	return service.emailNotifier.SendActivationEmail(u, a, "activation Account")
 }
 
+//ここで返すのは二段階認証前のoneTimeToken
 func (service UserService) Login(email userValues.Email, passString userValues.PassString) (string, error) {
 
 	u, err := service.userRepository.FindByEmail(email)
@@ -157,15 +161,12 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 		return "", notValidLoginInfoError()
 	}
 
-	token, err := service.tokenManager.GenerateToken(u, false)
-	if err != nil {
+	token := service.oneTimeAccessManager.CreateOneTimeAccessInfo(u.ID)
+
+	code := service.mfaManager.GenerateCode(u)
+	if err := service.emailNotifier.SendCode(u, code); err != nil {
 		return "", err
 	}
-
-	//code := service.mfaManager.GenerateCode(u)
-	//if err := service.emailNotifier.SendCode(u, code); err != nil {
-	//	return "", err
-	//}
 
 	return token, nil
 }
