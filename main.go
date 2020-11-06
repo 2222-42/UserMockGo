@@ -39,12 +39,14 @@ func main() {
 	loginInfra := myBcryption.NewLoginInfraMock()
 	mfaManager := mfa.NewMfaManagerMock()
 	tokenManager := jwtManager.NewTokenManagerMock()
+	oneTimeAccessInfoRepo := mysql.NewOneTimeAccessInfoRepositoryMock()
 	userService := service.NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, loginInfra, tokenManager,
-		mfaManager)
+		mfaManager, oneTimeAccessInfoRepo)
+	oneTImeAccessInfoService := service.NewOneTimeAccessInfoService(oneTimeAccessInfoRepo, mfaManager, tokenManager, userRepository)
 	authorizationService := service.NewAuthorizationService(tokenManager)
-	mfaService := service.NewMfaService(userRepository, activationNotifier, tokenManager, mfaManager)
+	mfaService := service.NewMfaService(activationNotifier, mfaManager)
 	userHandler := handler.NewUserHandler(userService, authorizationService)
-	mfaHandler := handler.NewMfaHandler(mfaService, authorizationService)
+	mfaHandler := handler.NewMfaHandler(mfaService, authorizationService, oneTImeAccessInfoService)
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})

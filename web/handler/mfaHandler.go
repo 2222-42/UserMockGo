@@ -10,15 +10,18 @@ import (
 type MfaHandler struct {
 	mfaService           service.MfaService
 	authorizationService service.AuthorizationService
+	oneTimeAccessService service.OneTimeAccessInfoService
 }
 
 func NewMfaHandler(
 	mfaService service.MfaService,
 	authorizationService service.AuthorizationService,
+	oneTimeAccessService service.OneTimeAccessInfoService,
 ) MfaHandler {
 	return MfaHandler{
 		mfaService:           mfaService,
 		authorizationService: authorizationService,
+		oneTimeAccessService: oneTimeAccessService,
 	}
 }
 
@@ -33,12 +36,7 @@ func (handler MfaHandler) MFAuthenticate(c echo.Context) error {
 		return err
 	}
 
-	authorization, err := handler.authorizationService.GetAuthorization(c.Request().Header.Get("X-Access-Token"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, "Failed: "+err.Error())
-	}
-
-	token, err := handler.mfaService.CheckCode(authorization.UserId, body.Code)
+	token, err := handler.oneTimeAccessService.CheckWithMfaAndOneTimeCode(c.Request().Header.Get("X-One-Time-Token"), body.Code)
 	if err != nil {
 		fmt.Println("Login is failed: " + err.Error())
 		return c.JSON(http.StatusBadRequest, "Login is failed: "+err.Error())
