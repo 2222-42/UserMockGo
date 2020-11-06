@@ -7,27 +7,12 @@ import (
 	"UserMockGo/infra/mysql"
 	"UserMockGo/infra/notifier"
 	"UserMockGo/infra/randomintgenerator"
-	"UserMockGo/infra/table"
 	"UserMockGo/infra/token"
-	"UserMockGo/lib/valueObjects/userValues"
 	"testing"
-	"time"
 )
 
 func TestUserService_LoginSuccess(t *testing.T) {
-	sampleUser := table.User{
-		ID:        123,
-		Email:     "test@test.com",
-		IsActive:  true,
-		CreatedAt: time.Now().Unix(),
-		UpdatedAt: time.Now().Unix(),
-	}
-	hashedPass, _ := myBcryption.HashPassString(userValues.PassString("testtesttesttest"))
-	samplePass := table.Password{
-		ID:       123,
-		Password: hashedPass,
-	}
-	userRepository := mysql.NewUserRepositoryMock(sampleUser, samplePass)
+	userRepository := mysql.NewUserRepositoryMock()
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
 	activationNotifier := notifier.NewActivationNotifier()
@@ -37,7 +22,7 @@ func TestUserService_LoginSuccess(t *testing.T) {
 	oneTimeAccessInfoRepo := mysql.NewOneTimeAccessInfoRepositoryMock()
 
 	userService := NewUserService(userRepository, userIdGenerator, userTokenGenerator, activationNotifier, loginInfra, tokenManager, mfaManager, oneTimeAccessInfoRepo)
-	code, err := userService.Login("test@test.com", "testtesttesttest")
+	code, err := userService.Login("test3@test.com", "test123456")
 	if err != nil {
 		t.Error("failed", err)
 	}
@@ -58,19 +43,7 @@ func TestUserService_LoginSuccess(t *testing.T) {
 }
 
 func TestUserService_LoginFail(t *testing.T) {
-	sampleUser := table.User{
-		ID:        123,
-		Email:     "test@test.com",
-		IsActive:  true,
-		CreatedAt: time.Now().Unix(),
-		UpdatedAt: time.Now().Unix(),
-	}
-	hashedPass, _ := myBcryption.HashPassString(userValues.PassString("testtesttesttest"))
-	samplePass := table.Password{
-		ID:       123,
-		Password: hashedPass,
-	}
-	userRepository := mysql.NewUserRepositoryMock(sampleUser, samplePass)
+	userRepository := mysql.NewUserRepositoryMock()
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
 	activationNotifier := notifier.NewActivationNotifier()

@@ -8,7 +8,6 @@ import (
 	"UserMockGo/infra/table"
 	"UserMockGo/lib/valueObjects/userValues"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 )
@@ -43,7 +42,7 @@ func NewUserRepositoryMock() infrainterface.IUserRepository {
 		ActivationTokenExpiresAt: 2145884400,
 	})
 	passwords := []table.Password{}
-	hashedPass, _ := myBcryption.HashPassString(userValues.PassString(os.Getenv("TEST_PASS")))
+	hashedPass, _ := myBcryption.HashPassString(userValues.PassString("test123456"))
 	passwords = append(passwords, table.Password{
 		ID:       3,
 		Password: hashedPass,
