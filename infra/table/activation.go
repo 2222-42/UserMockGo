@@ -13,7 +13,7 @@ type Activation struct {
 
 func MapFromUserActivationModel(activation user.Activation) (Activation, error) {
 	return Activation{
-		ID:                       int64(activation.ID),
+		ID:                       activation.ID.ConvertUserIdToInt64(),
 		ActivationToken:          activation.ActivationToken,
 		ActivationTokenExpiresAt: activation.ActivationTokenExpiresAt,
 	}, nil

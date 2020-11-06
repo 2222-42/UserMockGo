@@ -87,7 +87,7 @@ func (repo UserRepositoryMock) CreateUserTransactional(user user.User, pass user
 func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activation user.Activation) error {
 	users := []table.User{}
 	for _, u := range *repo.Users {
-		if u.ID != int64(user.ID) {
+		if u.ID != user.ID.ConvertUserIdToInt64() {
 			users = append(users, u)
 		} else {
 			user.IsActive = true
@@ -99,7 +99,7 @@ func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activat
 
 	activations := []table.Activation{}
 	for _, a := range *repo.Activations {
-		if a.ID != int64(activation.ID) {
+		if a.ID != activation.ID.ConvertUserIdToInt64() {
 			activations = append(activations, a)
 		}
 	}
@@ -156,7 +156,7 @@ func (repo UserRepositoryMock) FindById(id model.UserID) (user.User, error) {
 		}, nil
 	default:
 		for _, u := range *repo.Users {
-			if u.ID == int64(id) {
+			if u.ID == id.ConvertUserIdToInt64() {
 				return u.MapToUserModel()
 			}
 		}
@@ -181,7 +181,7 @@ func (repo UserRepositoryMock) FindByUserIdAndToken(userId model.UserID, token s
 			}, nil
 		default:
 			for _, a := range *repo.Activations {
-				if a.ID == int64(userId) && a.ActivationToken == token {
+				if a.ID == userId.ConvertUserIdToInt64() && a.ActivationToken == token {
 					return a.MapToActivationModel()
 				}
 			}
@@ -200,7 +200,7 @@ func (repo UserRepositoryMock) ReissueOfActivationTransactional(activation user.
 	}
 
 	for _, a := range *repo.Activations {
-		if a.ID != int64(activation.ID) {
+		if a.ID != activation.ID.ConvertUserIdToInt64() {
 			activations = append(activations, a)
 		} else {
 			activations = append(activations, newActivation)
@@ -213,7 +213,7 @@ func (repo UserRepositoryMock) ReissueOfActivationTransactional(activation user.
 
 func (repo UserRepositoryMock) GetHashedPassword(id model.UserID) (string, error) {
 	for _, p := range *repo.Passwords {
-		if p.ID == int64(id) {
+		if p.ID == id.ConvertUserIdToInt64() {
 			return p.MapToHashedString(), nil
 		}
 	}
