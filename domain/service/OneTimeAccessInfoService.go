@@ -49,7 +49,7 @@ func (service OneTimeAccessInfoService) CheckWithMfaAndOneTimeCode(oneTimeCode s
 		return "", err
 	}
 
-	token, err := service.tokenManager.GenerateToken(u, true)
+	token, err := service.tokenManager.GenerateToken(u)
 	if err != nil {
 		return "", err
 	}

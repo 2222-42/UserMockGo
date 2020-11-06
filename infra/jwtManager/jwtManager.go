@@ -22,7 +22,7 @@ func NewTokenManagerMock() infrainterface.ITokenManager {
 	return TokenManager{}
 }
 
-func (manager TokenManager) GenerateToken(u user.User, isMfaAuthenticated bool) (string, error) {
+func (manager TokenManager) GenerateToken(u user.User) (string, error) {
 
 	// TODO: HS256を使わなくする
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -30,7 +30,6 @@ func (manager TokenManager) GenerateToken(u user.User, isMfaAuthenticated bool) 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["sub"] = strconv.Itoa(int(u.ID))
 	claims["email"] = string(u.Email)
-	claims["isVerified"] = strconv.FormatBool(isMfaAuthenticated)
 	claims["iat"] = time.Now()
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
@@ -70,12 +69,9 @@ func (manager TokenManager) Parse(tokenString string) (authorization.Authorizati
 			return authorization.Authorization{}, err
 		}
 
-		isVerified, err := strconv.ParseBool(claims["isVerified"].(string))
-
 		return authorization.Authorization{
-			UserId:             model.UserID(id),
-			Email:              userValues.Email(claims["email"].(string)),
-			IsMfaAuthenticated: isVerified,
+			UserId: model.UserID(id),
+			Email:  userValues.Email(claims["email"].(string)),
 		}, nil
 	} else {
 		fmt.Println(err)
