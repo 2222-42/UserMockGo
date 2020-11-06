@@ -3,6 +3,7 @@ package service
 import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
+	"log"
 )
 
 type OneTimeAccessInfoService struct {
@@ -38,11 +39,15 @@ func (service OneTimeAccessInfoService) CheckWithMfaAndOneTimeCode(oneTimeCode s
 	}
 
 	if err := service.mfaRepository.RequireValidPairOfUserAndCode(userId, mfaCode); err != nil {
-		service.oneTimeAccessInfoRepository.IncrementRetryCount(oneTimeCode)
+		if err := service.oneTimeAccessInfoRepository.IncrementRetryCount(oneTimeCode); err != nil {
+			log.Printf("fail on incrementing one-time-access-info code: %v msg: %v", oneTimeCode, err)
+		}
 		return "", err
 	}
 
-	service.oneTimeAccessInfoRepository.RemoveAccessInfo(oneTimeCode)
+	if err := service.oneTimeAccessInfoRepository.RemoveAccessInfo(oneTimeCode); err != nil {
+		log.Printf("fail on removing one-time-access-info code: %v msg: %v", oneTimeCode, err)
+	}
 
 	u, err := service.userRepository.FindById(userId)
 	if err != nil {

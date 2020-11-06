@@ -57,27 +57,44 @@ func (mock OneTimeAccessInfoRepositoryMock) GetUserIdByOneTimeCode(code string) 
 		}
 	}
 
+	if info.ExpiresAt < time.Now().Unix() {
+		delete(mock.OneTimeInfos, code)
+		return 0, errors.MyError{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "one time info is expired",
+			ErrorType:  "one_time_info_not_valid",
+		}
+	}
+
 	return info.UserId, nil
 }
 
-func (mock OneTimeAccessInfoRepositoryMock) RemoveAccessInfo(code string) {
+func (mock OneTimeAccessInfoRepositoryMock) RemoveAccessInfo(code string) error {
 	_, ok := mock.OneTimeInfos[code]
 	if !ok {
-		return
+		return errors.MyError{
+			StatusCode: http.StatusNotFound,
+			Message:    "one time info is found",
+			ErrorType:  "one_time_info_not_found",
+		}
 	}
 
 	delete(mock.OneTimeInfos, code)
-	return
+	return nil
 }
 
-func (mock OneTimeAccessInfoRepositoryMock) IncrementRetryCount(code string) {
+func (mock OneTimeAccessInfoRepositoryMock) IncrementRetryCount(code string) error {
 
 	info, ok := mock.OneTimeInfos[code]
 	if !ok {
-		return
+		return errors.MyError{
+			StatusCode: http.StatusNotFound,
+			Message:    "one time info is found",
+			ErrorType:  "one_time_info_not_found",
+		}
 	}
 
 	info.RetryCount += 1
 	mock.OneTimeInfos[code] = info
-	return
+	return nil
 }
