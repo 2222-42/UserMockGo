@@ -34,8 +34,9 @@ curl -XPOST -H "content-type:application/json" localhost:8080/user/login --data 
 
 ### MFA
 
+fail
 ```
-curl -XPOST -H "content-type:application/json" localhost:8080/user/login --data '{"email": "test3@test.com", "password":"testtesttest"}'
+curl localhost:8080/user/mfa -XPOST -H "content-type:application/json" -H 'X-One-Time-Token:BpLnfgDsc2' --data '{"code": "123457"}'
 ```
 
 ### GetSelfInfo
@@ -47,6 +48,6 @@ curl 'localhost:8080/users?id=1'
 
 invalid token
 ```
-curl -H 'X-Access-Token:test' 'localhost:8080/users?id=1'
+curl -H 'X-Access-Token:test' 'localhost:8080/users?id=123'
 ```
 
