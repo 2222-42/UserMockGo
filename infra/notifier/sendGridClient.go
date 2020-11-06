@@ -1,25 +1,30 @@
 package notifier
 
 import (
+	"UserMockGo/config"
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model/userModel"
 	"fmt"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"log"
-	"os"
 	"strconv"
 )
 
 type sendGridClient struct {
+	FromAddress string
+	ApiKey      string
 }
 
-func NewActivationNotifier() infrainterface.IEmailNotifier {
-	return sendGridClient{}
+func NewActivationNotifier(config *config.NotifierConfig) infrainterface.IEmailNotifier {
+	return sendGridClient{
+		FromAddress: config.FromAddress,
+		ApiKey:      config.SendGridApiKey,
+	}
 }
 
 func (notifier sendGridClient) SendActivationEmail(user userModel.User, activation userModel.Activation, subjectStr string) error {
-	from := mail.NewEmail("UserMockGo Admin", os.Getenv("FROM_ADDRESS"))
+	from := mail.NewEmail("UserMockGo Admin", notifier.FromAddress)
 	subject := "[UserMockGo]" + subjectStr
 	to := mail.NewEmail("UserId: "+strconv.Itoa(int(user.ID)), string(user.Email))
 
@@ -33,7 +38,7 @@ func (notifier sendGridClient) SendActivationEmail(user userModel.User, activati
 		"&token=" + activation.ActivationToken + "'>アカウントの有効化</a>"
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 
-	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	client := sendgrid.NewSendClient(notifier.ApiKey)
 	response, err := client.Send(message)
 	if err != nil {
 		log.Println(err)
@@ -48,7 +53,7 @@ func (notifier sendGridClient) SendActivationEmail(user userModel.User, activati
 }
 
 func (notifier sendGridClient) SendCode(user userModel.User, code string) error {
-	from := mail.NewEmail("UserMockGo Admin", os.Getenv("FROM_ADDRESS"))
+	from := mail.NewEmail("UserMockGo Admin", notifier.FromAddress)
 	subject := "[UserMockGo]" + "activation code"
 	to := mail.NewEmail("UserId: "+strconv.Itoa(int(user.ID)), string(user.Email))
 
@@ -60,7 +65,7 @@ func (notifier sendGridClient) SendCode(user userModel.User, code string) error 
 		"</p>"
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 
-	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	client := sendgrid.NewSendClient(notifier.ApiKey)
 	response, err := client.Send(message)
 	if err != nil {
 		log.Println(err)

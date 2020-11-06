@@ -15,7 +15,7 @@ func TestUserService_LoginSuccess(t *testing.T) {
 	userRepository := mysql.NewUserRepositoryMock()
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
-	activationNotifier := notifier.NewActivationNotifier()
+	activationNotifier := notifier.NewActivationNotifierMock()
 	loginInfra := myBcryption.NewLoginInfraMock()
 	mfaManager := mfa.NewMfaManagerMock()
 	tokenManager := jwtManager.NewTokenManagerMock()
@@ -46,7 +46,7 @@ func TestUserService_LoginFail(t *testing.T) {
 	userRepository := mysql.NewUserRepositoryMock()
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
-	activationNotifier := notifier.NewActivationNotifier()
+	activationNotifier := notifier.NewActivationNotifierMock()
 	loginInfra := myBcryption.NewLoginInfraMock()
 	mfaManager := mfa.NewMfaManagerMock()
 	tokenManager := jwtManager.NewTokenManagerMock()

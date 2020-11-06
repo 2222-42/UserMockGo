@@ -1,7 +1,11 @@
 package main
 
-import "UserMockGo/web"
+import (
+	"UserMockGo/config"
+	"UserMockGo/web"
+)
 
 func main() {
-	web.Init()
+	conf := config.ReadConfig()
+	web.Init(conf)
 }

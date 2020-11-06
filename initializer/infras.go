@@ -1,6 +1,7 @@
 package initializer
 
 import (
+	"UserMockGo/config"
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/infra/jwtManager"
 	"UserMockGo/infra/mfa"
@@ -19,10 +20,10 @@ type Infras struct {
 	tokenManager       infrainterface.ITokenManager
 }
 
-func InitInfras() *Infras {
+func InitInfras(config *config.Config) *Infras {
 	userIdGenerator := randomintgenerator.UserIdGeneratorMock{}
 	userTokenGenerator := token.UserTokenGeneratorMock{}
-	activationNotifier := notifier.NewActivationNotifier()
+	activationNotifier := notifier.NewActivationNotifier(config.NotifierConfig)
 	loginInfra := myBcryption.NewLoginInfraMock()
 	mfaManager := mfa.NewMfaManagerMock()
 	tokenManager := jwtManager.NewTokenManagerMock()

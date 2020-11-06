@@ -1,14 +1,15 @@
 package web
 
 import (
+	"UserMockGo/config"
 	"UserMockGo/initializer"
 	"github.com/labstack/echo"
 	"net/http"
 )
 
-func Init() {
+func Init(config *config.Config) {
 	repositories := initializer.InitRepositories()
-	infras := initializer.InitInfras()
+	infras := initializer.InitInfras(config)
 	services := initializer.InitServices(repositories, infras)
 	handlers := initializer.InitHandlers(services)
 
