@@ -2,10 +2,10 @@ package infrainterface
 
 import (
 	"UserMockGo/domain/model"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 )
 
 type IMfaManager interface {
-	GenerateCode(user user.User) string
+	GenerateCode(user userModel.User) string
 	RequireValidPairOfUserAndCode(userId model.UserID, code string) error
 }

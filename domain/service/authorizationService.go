@@ -2,7 +2,7 @@ package service
 
 import (
 	"UserMockGo/domain/infrainterface"
-	"UserMockGo/domain/model/authorization"
+	"UserMockGo/domain/model/authorizationModel"
 )
 
 type AuthorizationService struct {
@@ -15,11 +15,11 @@ func NewAuthorizationService(tokenManager infrainterface.ITokenManager) Authoriz
 	}
 }
 
-func (service AuthorizationService) GetAuthorization(tokenString string) (authorization.Authorization, error) {
+func (service AuthorizationService) GetAuthorization(tokenString string) (authorizationModel.Authorization, error) {
 	auth, err := service.tokenManager.Parse(tokenString)
 
 	if err != nil {
-		return authorization.Authorization{}, err
+		return authorizationModel.Authorization{}, err
 	}
 
 	return auth, err

@@ -2,7 +2,7 @@ package table
 
 import (
 	"UserMockGo/domain/model"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 )
 
 type Activation struct {
@@ -11,7 +11,7 @@ type Activation struct {
 	ActivationTokenExpiresAt int64  `gorm:"not null; column: activation_token_expires_at; default: 0"`
 }
 
-func MapFromUserActivationModel(activation user.Activation) (Activation, error) {
+func MapFromUserActivationModel(activation userModel.Activation) (Activation, error) {
 	return Activation{
 		ID:                       activation.ID.ConvertUserIdToInt64(),
 		ActivationToken:          activation.ActivationToken,
@@ -19,8 +19,8 @@ func MapFromUserActivationModel(activation user.Activation) (Activation, error) 
 	}, nil
 }
 
-func (a Activation) MapToActivationModel() (user.Activation, error) {
-	return user.Activation{
+func (a Activation) MapToActivationModel() (userModel.Activation, error) {
+	return userModel.Activation{
 		ID:                       model.UserID(a.ID),
 		ActivationToken:          a.ActivationToken,
 		ActivationTokenExpiresAt: a.ActivationTokenExpiresAt,

@@ -1,7 +1,7 @@
 package table
 
 import (
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 	"UserMockGo/infra/myBcryption"
 )
 
@@ -10,7 +10,7 @@ type Password struct {
 	Password string `gorm:"not null;column:password;"`
 }
 
-func MapFromUserPasswordModel(password user.Password) (Password, error) {
+func MapFromUserPasswordModel(password userModel.Password) (Password, error) {
 	hp, err := myBcryption.HashPassString(password.Password)
 	if err != nil {
 		return Password{}, err

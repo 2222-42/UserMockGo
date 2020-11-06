@@ -1,4 +1,4 @@
-package user
+package userModel
 
 import (
 	"UserMockGo/domain/model"
@@ -9,11 +9,11 @@ import (
 )
 
 type User struct {
-	ID                   model.UserID
-	Email                userValues.Email
-	IsActive             bool
-	CreatedAt            int64
-	UpdatedAt            int64
+	ID        model.UserID
+	Email     userValues.Email
+	IsActive  bool
+	CreatedAt int64
+	UpdatedAt int64
 }
 
 type Activation struct {

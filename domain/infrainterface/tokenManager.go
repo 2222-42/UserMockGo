@@ -1,12 +1,12 @@
 package infrainterface
 
 import (
-	"UserMockGo/domain/model/authorization"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/authorizationModel"
+	"UserMockGo/domain/model/userModel"
 )
 
 type ITokenManager interface {
-	GenerateToken(u user.User) (string, error)
-	Parse(tokenString string) (authorization.Authorization, error)
+	GenerateToken(u userModel.User) (string, error)
+	Parse(tokenString string) (authorizationModel.Authorization, error)
 	//RevokeToken(str string) error
 }

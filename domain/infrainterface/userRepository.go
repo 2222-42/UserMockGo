@@ -2,16 +2,16 @@ package infrainterface
 
 import (
 	"UserMockGo/domain/model"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 	"UserMockGo/lib/valueObjects/userValues"
 )
 
 type IUserRepository interface {
-	CreateUserTransactional(user user.User, pass user.Password, activation user.Activation) error
-	FindByEmail(email userValues.Email) (user.User, error)
-	FindById(id model.UserID) (user.User, error)
-	ActivateUserTransactional(user user.User, activation user.Activation) error
-	FindByUserIdAndToken(userId model.UserID, token string) (user.Activation, error)
-	ReissueOfActivationTransactional(activation user.Activation) error
+	CreateUserTransactional(user userModel.User, pass userModel.Password, activation userModel.Activation) error
+	FindByEmail(email userValues.Email) (userModel.User, error)
+	FindById(id model.UserID) (userModel.User, error)
+	ActivateUserTransactional(user userModel.User, activation userModel.Activation) error
+	FindByUserIdAndToken(userId model.UserID, token string) (userModel.Activation, error)
+	ReissueOfActivationTransactional(activation userModel.Activation) error
 	GetHashedPassword(id model.UserID) (string, error)
 }

@@ -3,7 +3,7 @@ package mysql
 import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 	"UserMockGo/infra/myBcryption"
 	"UserMockGo/infra/table"
 	"UserMockGo/lib/valueObjects/userValues"
@@ -57,7 +57,7 @@ func NewUserRepositoryMock(testUser table.User, testPass table.Password) infrain
 	}
 }
 
-func (repo UserRepositoryMock) CreateUserTransactional(user user.User, pass user.Password, activation user.Activation) error {
+func (repo UserRepositoryMock) CreateUserTransactional(user userModel.User, pass userModel.Password, activation userModel.Activation) error {
 	u, err := table.MapFromUserModel(user)
 	if err != nil {
 		return err
@@ -84,7 +84,7 @@ func (repo UserRepositoryMock) CreateUserTransactional(user user.User, pass user
 }
 
 //　Userを更新して、それのActivationを消すのをTransactionalにやる
-func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activation user.Activation) error {
+func (repo UserRepositoryMock) ActivateUserTransactional(user userModel.User, activation userModel.Activation) error {
 	users := []table.User{}
 	for _, u := range *repo.Users {
 		if u.ID != user.ID.ConvertUserIdToInt64() {
@@ -108,10 +108,10 @@ func (repo UserRepositoryMock) ActivateUserTransactional(user user.User, activat
 	return nil
 }
 
-func (repo UserRepositoryMock) FindByEmail(email userValues.Email) (user.User, error) {
+func (repo UserRepositoryMock) FindByEmail(email userValues.Email) (userModel.User, error) {
 	switch email {
 	case "test2@test.com":
-		return user.User{
+		return userModel.User{
 			ID:        2,
 			Email:     "test2@test.com",
 			IsActive:  false,
@@ -119,7 +119,7 @@ func (repo UserRepositoryMock) FindByEmail(email userValues.Email) (user.User, e
 			UpdatedAt: time.Now().Unix() - 60*30,
 		}, nil
 	case "test3@test.com":
-		return user.User{
+		return userModel.User{
 			ID:        3,
 			Email:     "test3@test.com",
 			IsActive:  true,
@@ -132,14 +132,14 @@ func (repo UserRepositoryMock) FindByEmail(email userValues.Email) (user.User, e
 				return u.MapToUserModel()
 			}
 		}
-		return user.User{}, user.UserNotFound(string(email))
+		return userModel.User{}, userModel.UserNotFound(string(email))
 	}
 }
 
-func (repo UserRepositoryMock) FindById(id model.UserID) (user.User, error) {
+func (repo UserRepositoryMock) FindById(id model.UserID) (userModel.User, error) {
 	switch id {
 	case 2:
-		return user.User{
+		return userModel.User{
 			ID:        2,
 			Email:     "test2@test.com",
 			IsActive:  false,
@@ -147,7 +147,7 @@ func (repo UserRepositoryMock) FindById(id model.UserID) (user.User, error) {
 			UpdatedAt: time.Now().Unix() - 60*30,
 		}, nil
 	case 3:
-		return user.User{
+		return userModel.User{
 			ID:        3,
 			Email:     "test3@test.com",
 			IsActive:  true,
@@ -160,21 +160,21 @@ func (repo UserRepositoryMock) FindById(id model.UserID) (user.User, error) {
 				return u.MapToUserModel()
 			}
 		}
-		return user.User{}, user.UserNotFound(string(id))
+		return userModel.User{}, userModel.UserNotFound(string(id))
 	}
 }
 
-func (repo UserRepositoryMock) FindByUserIdAndToken(userId model.UserID, token string) (user.Activation, error) {
+func (repo UserRepositoryMock) FindByUserIdAndToken(userId model.UserID, token string) (userModel.Activation, error) {
 	if token != "" {
 		switch userId {
 		case 1:
-			return user.Activation{
+			return userModel.Activation{
 				ID:                       1,
 				ActivationToken:          "aaa",
 				ActivationTokenExpiresAt: 2145884400,
 			}, nil
 		case 2:
-			return user.Activation{
+			return userModel.Activation{
 				ID:                       2,
 				ActivationToken:          "bbb",
 				ActivationTokenExpiresAt: 0,
@@ -185,14 +185,14 @@ func (repo UserRepositoryMock) FindByUserIdAndToken(userId model.UserID, token s
 					return a.MapToActivationModel()
 				}
 			}
-			return user.Activation{}, user.ActivationNotFound(strconv.Itoa(int(userId)))
+			return userModel.Activation{}, userModel.ActivationNotFound(strconv.Itoa(int(userId)))
 		}
 	}
-	return user.Activation{}, user.ActivationNotFound(strconv.Itoa(int(userId)))
+	return userModel.Activation{}, userModel.ActivationNotFound(strconv.Itoa(int(userId)))
 }
 
 // 既存のactivationを消して作るのをTransactionalに実施する
-func (repo UserRepositoryMock) ReissueOfActivationTransactional(activation user.Activation) error {
+func (repo UserRepositoryMock) ReissueOfActivationTransactional(activation userModel.Activation) error {
 	activations := []table.Activation{}
 	newActivation, err := table.MapFromUserActivationModel(activation)
 	if err != nil {
@@ -217,5 +217,5 @@ func (repo UserRepositoryMock) GetHashedPassword(id model.UserID) (string, error
 			return p.MapToHashedString(), nil
 		}
 	}
-	return "", user.UserPassNotFound("")
+	return "", userModel.UserPassNotFound("")
 }

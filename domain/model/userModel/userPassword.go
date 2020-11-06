@@ -1,4 +1,4 @@
-package user
+package userModel
 
 import (
 	"UserMockGo/domain/model"

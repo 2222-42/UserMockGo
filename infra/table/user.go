@@ -2,7 +2,7 @@ package table
 
 import (
 	"UserMockGo/domain/model"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 	"UserMockGo/lib/valueObjects/userValues"
 )
 
@@ -14,7 +14,7 @@ type User struct {
 	UpdatedAt int64  `gorm:"not null;column:updated_at;default: 0"`
 }
 
-func MapFromUserModel(user user.User) (User, error) {
+func MapFromUserModel(user userModel.User) (User, error) {
 	return User{
 		ID:        user.ID.ConvertUserIdToInt64(),
 		Email:     string(user.Email),
@@ -24,8 +24,8 @@ func MapFromUserModel(user user.User) (User, error) {
 	}, nil
 }
 
-func (u User) MapToUserModel() (user.User, error) {
-	return user.User{
+func (u User) MapToUserModel() (userModel.User, error) {
+	return userModel.User{
 		ID:        model.UserID(u.ID),
 		Email:     userValues.Email(u.Email),
 		IsActive:  u.IsActive,

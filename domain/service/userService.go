@@ -3,9 +3,9 @@ package service
 import (
 	"UserMockGo/domain/infrainterface"
 	"UserMockGo/domain/model"
-	"UserMockGo/domain/model/authorization"
+	"UserMockGo/domain/model/authorizationModel"
 	"UserMockGo/domain/model/errors"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 	"UserMockGo/lib/valueObjects/userValues"
 	"net/http"
 	"time"
@@ -60,16 +60,16 @@ func (service UserService) CreateUser(email userValues.Email, passString userVal
 	token, expiresAt := service.tokenGenerator.GenerateTokenAndExpiresAt()
 	userId := model.UserID(id)
 
-	u, err := user.NewUser(userId, email, now)
+	u, err := userModel.NewUser(userId, email, now)
 	if err != nil {
 		return err
 	}
 
-	p, err := user.NewPassword(userId, passString)
+	p, err := userModel.NewPassword(userId, passString)
 	if err != nil {
 		return err
 	}
-	a := user.NewActivation(userId, token, expiresAt)
+	a := userModel.NewActivation(userId, token, expiresAt)
 
 	if err := service.userRepository.CreateUserTransactional(u, p, a); err != nil {
 		return err
@@ -87,7 +87,7 @@ func (service UserService) ActivateUser(email userValues.Email, token string) er
 	if u.IsActive {
 		return errors.MyError{
 			StatusCode: http.StatusForbidden,
-			Message:    "The user is already activated.",
+			Message:    "The userModel is already activated.",
 			ErrorType:  "user_not_needed_to_activate",
 		}
 	}
@@ -121,13 +121,13 @@ func (service UserService) ReissueOfActivation(email userValues.Email) error {
 	if u.IsActive {
 		return errors.MyError{
 			StatusCode: http.StatusForbidden,
-			Message:    "The user is already activated.",
+			Message:    "The userModel is already activated.",
 			ErrorType:  "user_not_needed_to_activate",
 		}
 	}
 
 	token, expiresAt := service.tokenGenerator.GenerateTokenAndExpiresAt()
-	a := user.NewActivation(u.ID, token, expiresAt)
+	a := userModel.NewActivation(u.ID, token, expiresAt)
 
 	if err := service.userRepository.ReissueOfActivationTransactional(a); err != nil {
 		return err
@@ -171,14 +171,14 @@ func (service UserService) Login(email userValues.Email, passString userValues.P
 	return token, nil
 }
 
-func (service UserService) GetUserInfo(userId model.UserID, auth authorization.Authorization) (user.User, error) {
+func (service UserService) GetUserInfo(userId model.UserID, auth authorizationModel.Authorization) (userModel.User, error) {
 
 	if err := auth.RequireSameUser(userId); err != nil {
-		return user.User{}, err
+		return userModel.User{}, err
 	}
 
 	if auth.UserId != userId {
-		return user.User{}, errors.MyError{
+		return userModel.User{}, errors.MyError{
 			StatusCode: http.StatusForbidden,
 			Message:    "invalid user_id",
 			ErrorType:  "not_accessible_this_resource",
@@ -187,7 +187,7 @@ func (service UserService) GetUserInfo(userId model.UserID, auth authorization.A
 
 	u, err := service.userRepository.FindByEmail(auth.Email)
 	if err != nil {
-		return user.User{}, err
+		return userModel.User{}, err
 	}
 
 	return u, nil

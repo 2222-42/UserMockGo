@@ -2,7 +2,7 @@ package notifier
 
 import (
 	"UserMockGo/domain/infrainterface"
-	"UserMockGo/domain/model/user"
+	"UserMockGo/domain/model/userModel"
 	"fmt"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -18,7 +18,7 @@ func NewActivationNotifier() infrainterface.IEmailNotifier {
 	return sendGridClient{}
 }
 
-func (notifier sendGridClient) SendActivationEmail(user user.User, activation user.Activation, subjectStr string) error {
+func (notifier sendGridClient) SendActivationEmail(user userModel.User, activation userModel.Activation, subjectStr string) error {
 	from := mail.NewEmail("UserMockGo Admin", os.Getenv("FROM_ADDRESS"))
 	subject := "[UserMockGo]" + subjectStr
 	to := mail.NewEmail("UserId: "+strconv.Itoa(int(user.ID)), string(user.Email))
@@ -29,7 +29,7 @@ func (notifier sendGridClient) SendActivationEmail(user user.User, activation us
 	htmlContent := "<p>UserMockGoに登録していただきありがとうございます。</p>" +
 		"<p>UserMockGoのactivatorです。</p>" +
 		"<p>以下のURLよりUserの有効化を完了してください。</p>" +
-		"<a href='http://localhost:8080/user/activate?email=" + string(user.Email) +
+		"<a href='http://localhost:8080/userModel/activate?email=" + string(user.Email) +
 		"&token=" + activation.ActivationToken + "'>アカウントの有効化</a>"
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 
@@ -47,7 +47,7 @@ func (notifier sendGridClient) SendActivationEmail(user user.User, activation us
 	return nil
 }
 
-func (notifier sendGridClient) SendCode(user user.User, code string) error {
+func (notifier sendGridClient) SendCode(user userModel.User, code string) error {
 	from := mail.NewEmail("UserMockGo Admin", os.Getenv("FROM_ADDRESS"))
 	subject := "[UserMockGo]" + "activation code"
 	to := mail.NewEmail("UserId: "+strconv.Itoa(int(user.ID)), string(user.Email))
