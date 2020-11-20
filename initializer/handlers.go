@@ -10,7 +10,7 @@ type Handlers struct {
 }
 
 func InitHandlers(services *Services) *Handlers {
-	userHandler := handler.NewUserHandler(services.UserService, services.AuthorizationService)
+	userHandler := handler.NewUserHandler(services.UserService, services.LoginService, services.AuthorizationService)
 	mfaHandler := handler.NewMfaHandler(services.MfaService, services.AuthorizationService, services.OneTImeAccessInfoService)
 	return &Handlers{
 		UserHandler: userHandler,

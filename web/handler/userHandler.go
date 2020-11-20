@@ -12,12 +12,14 @@ import (
 
 type UserHandler struct {
 	userService          service.UserService
+	loginService         service.LoginService
 	authorizationService service.AuthorizationService
 }
 
-func NewUserHandler(userService service.UserService, authrizationService service.AuthorizationService) UserHandler {
+func NewUserHandler(userService service.UserService, loginService service.LoginService, authrizationService service.AuthorizationService) UserHandler {
 	return UserHandler{
 		userService:          userService,
+		loginService:         loginService,
 		authorizationService: authrizationService,
 	}
 }
@@ -100,7 +102,7 @@ func (handler UserHandler) Login(c echo.Context) error {
 		return err
 	}
 
-	token, err := handler.userService.Login(userValues.Email(body.Email), userValues.PassString(body.Password))
+	token, err := handler.loginService.Login(userValues.Email(body.Email), userValues.PassString(body.Password))
 	if err != nil {
 		fmt.Println("Login is failed: " + err.Error())
 		return c.JSON(http.StatusBadRequest, "Login is failed: "+err.Error())

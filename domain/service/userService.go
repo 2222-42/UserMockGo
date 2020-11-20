@@ -12,14 +12,11 @@ import (
 )
 
 type UserService struct {
-	userRepository       infrainterface.IUserRepository
-	idGenerator          infrainterface.IUserIdGenerator
-	tokenGenerator       infrainterface.IUserTokenGenerator
-	emailNotifier        infrainterface.IEmailNotifier
-	loginInfra           infrainterface.ILogin
-	tokenManager         infrainterface.ITokenManager
-	mfaManager           infrainterface.IMfaManager
-	oneTimeAccessManager infrainterface.IOneTimeAccessInfoRepository
+	userRepository infrainterface.IUserRepository
+	idGenerator    infrainterface.IUserIdGenerator
+	tokenGenerator infrainterface.IUserTokenGenerator
+	emailNotifier  infrainterface.IEmailNotifier
+	tokenManager   infrainterface.ITokenManager
 }
 
 func NewUserService(
@@ -27,20 +24,14 @@ func NewUserService(
 	idGenerator infrainterface.IUserIdGenerator,
 	tokenGenerator infrainterface.IUserTokenGenerator,
 	activationNotifier infrainterface.IEmailNotifier,
-	loginInfra infrainterface.ILogin,
 	tokenManager infrainterface.ITokenManager,
-	mfaManager infrainterface.IMfaManager,
-	oneTimeAccessManager infrainterface.IOneTimeAccessInfoRepository,
 ) UserService {
 	return UserService{
-		userRepository:       userRepository,
-		idGenerator:          idGenerator,
-		tokenGenerator:       tokenGenerator,
-		emailNotifier:        activationNotifier,
-		loginInfra:           loginInfra,
-		tokenManager:         tokenManager,
-		mfaManager:           mfaManager,
-		oneTimeAccessManager: oneTimeAccessManager,
+		userRepository: userRepository,
+		idGenerator:    idGenerator,
+		tokenGenerator: tokenGenerator,
+		emailNotifier:  activationNotifier,
+		tokenManager:   tokenManager,
 	}
 }
 
@@ -133,42 +124,6 @@ func (service UserService) ReissueOfActivation(email userValues.Email) error {
 		return err
 	}
 	return service.emailNotifier.SendActivationEmail(u, a, "activation Account")
-}
-
-//ここで返すのは二段階認証前のoneTimeToken
-func (service UserService) Login(email userValues.Email, passString userValues.PassString) (string, error) {
-
-	u, err := service.userRepository.FindByEmail(email)
-	if err != nil {
-		return "", err //notValidLoginInfoError()
-	}
-
-	if !u.IsActive {
-		return "", errors.MyError{
-			StatusCode: http.StatusForbidden,
-			Message:    "Should Authorize",
-			ErrorType:  "not_valid_user_info",
-		}
-	}
-
-	hp, err := service.userRepository.GetHashedPassword(u.ID)
-
-	if err != nil {
-		return "", err //notValidLoginInfoError()
-	}
-
-	if !service.loginInfra.CheckPassAndHash(hp, passString) {
-		return "", notValidLoginInfoError()
-	}
-
-	token := service.oneTimeAccessManager.CreateOneTimeAccessInfo(u.ID)
-
-	code := service.mfaManager.GenerateCode(u)
-	if err := service.emailNotifier.SendCode(u, code); err != nil {
-		return "", err
-	}
-
-	return token, nil
 }
 
 func (service UserService) GetUserInfo(userId model.UserID, auth authorizationModel.Authorization) (userModel.User, error) {
