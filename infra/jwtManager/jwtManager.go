@@ -16,6 +16,7 @@ import (
 )
 
 type TokenManager struct {
+	KeyReceiver infrainterface.IKeyReceiver
 }
 
 func NewTokenManagerMock() infrainterface.ITokenManager {
@@ -23,6 +24,58 @@ func NewTokenManagerMock() infrainterface.ITokenManager {
 }
 
 func (manager TokenManager) GenerateToken(u userModel.User) (string, error) {
+	method := jwt.GetSigningMethod("ES256")
+	token := jwt.New(method)
+
+	claims := token.Claims.(jwt.MapClaims)
+	claims["sub"] = strconv.Itoa(int(u.ID))
+	claims["email"] = string(u.Email)
+	claims["iat"] = time.Now()
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+
+	return token.SignedString(manager.KeyReceiver.ReceiveSecretKey())
+}
+
+func (manager TokenManager) Parse(tokenString string) (authorizationModel.Authorization, error) {
+	if tokenString == "" {
+		return authorizationModel.Authorization{}, errors.MyError{
+			StatusCode: http.StatusForbidden,
+			Message:    "no token",
+			ErrorType:  "invalid_token",
+		}
+	}
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return manager.KeyReceiver.ReceivePublicKey(), nil
+	})
+
+	if err != nil {
+		return authorizationModel.Authorization{}, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		id, err := strconv.ParseInt(claims["sub"].(string), 10, 64)
+		if err != nil {
+			return authorizationModel.Authorization{}, err
+		}
+
+		return authorizationModel.Authorization{
+			UserId: model.UserID(id),
+			Email:  userValues.Email(claims["email"].(string)),
+		}, nil
+	} else {
+		fmt.Println(err)
+		return authorizationModel.Authorization{}, err
+	}
+}
+
+func (manager TokenManager) GenerateTokenHS(u userModel.User) (string, error) {
 
 	// TODO: HS256を使わなくする
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -40,7 +93,7 @@ func (manager TokenManager) GenerateToken(u userModel.User) (string, error) {
 	return tokenString, err
 }
 
-func (manager TokenManager) Parse(tokenString string) (authorizationModel.Authorization, error) {
+func (manager TokenManager) ParseHS(tokenString string) (authorizationModel.Authorization, error) {
 	if tokenString == "" {
 		return authorizationModel.Authorization{}, errors.MyError{
 			StatusCode: http.StatusForbidden,

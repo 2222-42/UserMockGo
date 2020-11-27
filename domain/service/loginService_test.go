@@ -56,3 +56,32 @@ func TestLoginService_LoginFail(t *testing.T) {
 		t.Error("should get code")
 	}
 }
+
+func TestLoginService_LoginSuccess_WithRSA(t *testing.T) {
+	userRepository := mysql.NewUserRepositoryMock()
+	activationNotifier := notifier.NewActivationNotifierMock()
+	loginInfra := myBcryption.NewLoginInfraMock()
+	mfaManager := mfa.NewMfaManagerMock()
+	tokenManager := jwtManager.NewTokenManagerMock()
+	oneTimeAccessInfoRepo := mysql.NewOneTimeAccessInfoRepositoryMock()
+
+	loginService := NewLoginService(userRepository, loginInfra, oneTimeAccessInfoRepo, mfaManager, activationNotifier)
+	code, err := loginService.Login("test3@test.com", "test123456")
+	if err != nil {
+		t.Error("failed", err)
+	}
+
+	if code == "" {
+		t.Error("should get code")
+	}
+
+	oneTimeService := NewOneTimeAccessInfoService(oneTimeAccessInfoRepo, mfaManager, tokenManager, userRepository)
+	accessToken, err := oneTimeService.CheckWithMfaAndOneTimeCode(code, "123456")
+	if err != nil {
+		t.Error("failed", err)
+	}
+
+	if accessToken == "" {
+		t.Error("should get token")
+	}
+}
